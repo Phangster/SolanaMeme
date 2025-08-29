@@ -14,7 +14,7 @@ const OriginsContent = ({ onNavigate }: OriginsContentProps) => {
         <div className="p-6 bg-gray-900 rounded-lg border border-gray-700">
           <h2 className="text-2xl font-bold text-yellow-400 mb-4">The Original Comic</h2>
           <p className="text-gray-300 leading-relaxed">
-            The iconic troll face originated from a 2008 comic by artist Matt Furie, known as "Pepe the Frog." 
+            The iconic troll face originated from a 2008 comic by artist Matt Furie, known as &ldquo;Pepe the Frog.&rdquo; 
             However, the specific troll face that became an internet phenomenon was created by artist Carlos Ramirez 
             in 2008. The comic was originally meant to mock internet trolls - people who deliberately provoke 
             others online for their own amusement.
@@ -38,7 +38,7 @@ const OriginsContent = ({ onNavigate }: OriginsContentProps) => {
           <p className="text-gray-300 leading-relaxed">
             In 2024, the troll face found new life in the world of cryptocurrency. $TROLL was born as a 
             tribute to this internet legend, representing not just a memecoin, but a celebration of the 
-            chaotic, unpredictable nature of both internet culture and the crypto market. It's a token that 
+            chaotic, unpredictable nature of both internet culture and the crypto market. It&apos;s a token that 
             embraces the spirit of trolling - not to harm, but to challenge the status quo.
           </p>
         </div>
@@ -47,7 +47,7 @@ const OriginsContent = ({ onNavigate }: OriginsContentProps) => {
         <div className="p-6 bg-gray-900 rounded-lg border border-gray-700">
           <h2 className="text-2xl font-bold text-yellow-400 mb-4">Building the Troll Community</h2>
           <p className="text-gray-300 leading-relaxed">
-            $TROLL isn't just about the meme - it's about building a community of people who understand 
+            $TROLL isn&apos;t just about the meme - it&apos;s about building a community of people who understand 
             internet culture, who appreciate the humor in trolling, and who want to be part of something 
             bigger than themselves. The community is built on the principles of fun, inclusivity, and 
             embracing the absurdity of the internet.
@@ -59,7 +59,7 @@ const OriginsContent = ({ onNavigate }: OriginsContentProps) => {
           <h2 className="text-2xl font-bold text-yellow-400 mb-4">The Future of $TROLL</h2>
           <p className="text-gray-300 leading-relaxed">
             As internet culture continues to evolve, $TROLL aims to be at the forefront of the memecoin 
-            revolution. We're not just another token - we're a movement that celebrates the creativity, 
+            revolution. We&apos;re not just another token - we&apos;re a movement that celebrates the creativity, 
             humor, and community that makes the internet such a unique place. The troll face may have 
             started as a joke, but $TROLL is building something real and lasting.
           </p>
@@ -72,7 +72,7 @@ const OriginsContent = ({ onNavigate }: OriginsContentProps) => {
             <li>The troll face was originally drawn in MS Paint</li>
             <li>It first gained popularity on 4chan in 2008</li>
             <li>The image has been parodied and remixed thousands of times</li>
-            <li>It's considered one of the most successful memes ever created</li>
+            <li>It&apos;s considered one of the most successful memes ever created</li>
             <li>The troll face transcends language barriers worldwide</li>
           </ul>
         </div>
