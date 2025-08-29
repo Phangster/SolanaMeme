@@ -193,6 +193,41 @@ Now use the metadata URI to create your token:
 npm run create-and-mint "SolanaMeme" "SMEME" "https://filebase.com/ipfs/QmY9L.../token.json"
 ```
 
+### Transfer Your Tokens
+
+After creating your token, you can transfer it to other wallets:
+
+```bash
+npm run transfer-token <mint_address> <recipient_address> <amount>
+```
+
+Example:
+```bash
+npm run transfer-token ABC123... XYZ789... 1000000000
+```
+
+This will:
+- Transfer tokens from your wallet to another address
+- Show balances before and after transfer
+- Support for any amount (in smallest units)
+
+**Note**: Amount should be in the smallest unit (e.g., 1000000000 for 1 token with 9 decimals)
+
+### Test Your Token Workflow
+
+Run the comprehensive test suite to verify everything is working:
+
+```bash
+npm run test
+```
+
+This will:
+- Test token creation functionality
+- Test token transfer functionality
+- Test utility functions
+- Generate test wallets
+- Provide detailed feedback on each component
+
 ## 💡 Metadata Best Practices
 
 ### **Image Guidelines**

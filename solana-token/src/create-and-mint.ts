@@ -32,14 +32,12 @@ export class TokenCreatorAndMinter {
       // Use existing wallet from environment
       userWallet = createKeypairFromPrivateKey(process.env.WALLET_PRIVATE_KEY);
       console.log('🔑 Using existing wallet from environment');
-    } else {
-      // Generate new wallet
-      userWallet = createNewKeypair();
-      console.log('🔑 Generated new wallet (for testing only)');
-      console.log(`Public Key: ${userWallet.publicKey.toBase58()}`);
-      console.log(`Private Key: ${Buffer.from(userWallet.secretKey).toString('base64')}`);
-      console.log('⚠️  Save this private key for future use!');
-    }
+          } else {
+        console.error('❌ ERROR: No wallet found');
+        console.error('💡 Please set WALLET_PRIVATE_KEY in your .env file');
+        console.error('💡 Or run: npm run setup-wallet to generate a new wallet');
+        throw new Error('WALLET_PRIVATE_KEY not found in environment variables');
+      }
 
     // Create UMI signer from keypair
     this.userWalletSigner = createSignerFromKeypair(this.umi, {
