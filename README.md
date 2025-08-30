@@ -1,31 +1,33 @@
-# 🐱 YAOME - Real-Time Click Counter Game
+# 🐱 YaoMe - Popcat-Style Click Counter Game
 
-A **Popcat-style click counter game** built with Next.js, MongoDB Atlas, and real-time updates using **WebSockets with manual triggers**. Compete with players worldwide in real-time!
+A modern, real-time click counter game built with **Next.js**, **MongoDB Atlas**, and **WebSockets**. Click the Yao Ming Face meme image to compete with players worldwide in real-time!
 
 ## ✨ Features
 
-- **🎯 Real-Time Clicking**: Click the Yao Ming Face image to compete
-- **🌍 Country Detection**: Automatic country detection via IP geolocation
-- **📊 Live Leaderboard**: Real-time global leaderboard with country flags
-- **⚡ Zero Latency**: WebSocket updates triggered immediately after clicks
-- **📱 Responsive Design**: Beautiful UI with Tailwind CSS
-- **🚀 Production Ready**: Deployable on Vercel with MongoDB Atlas
-- **🔌 Any MongoDB Cluster**: Works with M0, M2, M5, M4+ clusters
+- **🎯 Real-Time Updates**: WebSocket-powered instant leaderboard updates
+- **🌍 Global Competition**: Compete with players from around the world
+- **🚀 Fast Response**: 500ms click batching for smooth gameplay
+- **📱 Modern UI**: Beautiful, responsive design with Tailwind CSS
+- **🏆 Live Leaderboard**: See rankings update in real-time
+- **🎨 Meme Integration**: Yao Ming Face meme with click animations
+- **🌐 Country Detection**: Automatic country detection via IP geolocation
+- **📊 Click Analytics**: Track your clicks and global statistics
 
-## 🏗️ Tech Stack
+## 🛠️ Tech Stack
 
-- **Frontend**: Next.js 14 (App Router), React, TypeScript
+- **Frontend**: Next.js 15, React 18, TypeScript
 - **Styling**: Tailwind CSS
-- **Database**: MongoDB Atlas (any cluster type)
-- **Real-Time**: Socket.IO WebSockets with manual triggers
-- **Deployment**: Vercel-ready
+- **Database**: MongoDB Atlas
+- **Real-Time**: Socket.IO WebSockets
+- **Deployment**: Vercel (Frontend) + Railway/Render/Heroku (WebSocket Server)
+- **Country API**: ipapi.co for geolocation
 
 ## 🚀 Quick Start
 
 ### Prerequisites
 - Node.js 18+ 
-- MongoDB Atlas account (any cluster type: M0, M2, M5, M4+, etc.)
-- Vercel account (for deployment)
+- MongoDB Atlas account
+- Git
 
 ### 1. Clone & Install
 ```bash
@@ -35,7 +37,7 @@ npm install
 ```
 
 ### 2. Environment Setup
-Create `.env`:
+Create `.env.local` file:
 ```env
 # MongoDB Atlas Connection String
 MONGODB_URI=mongodb+srv://username:password@cluster.mongodb.net/yaome?retryWrites=true&w=majority
@@ -43,68 +45,79 @@ MONGODB_URI=mongodb+srv://username:password@cluster.mongodb.net/yaome?retryWrite
 # WebSocket Server Configuration
 WEBSOCKET_PORT=3001
 WEBSOCKET_URL=http://localhost:3001
+NEXT_PUBLIC_WEBSOCKET_URL=http://localhost:3001
+
+# Production Configuration
+NODE_ENV=development
+FRONTEND_URL=http://localhost:3000
 ```
 
-### 3. Run Both Servers
+### 3. Start Development
 ```bash
-# Run both Next.js and WebSocket server simultaneously
+# Terminal 1: Start WebSocket server
+npm run websocket
+
+# Terminal 2: Start Next.js frontend
+npm run dev
+
+# Or run both simultaneously
 npm run dev:full
 ```
 
-**Or run separately:**
-```bash
-# Terminal 1: WebSocket Server
-npm run websocket
-
-# Terminal 2: Next.js App
-npm run dev
-```
-
-Visit `http://localhost:3000` and start clicking! 🎯
+### 4. Open Your Browser
+Navigate to `http://localhost:3000` and start clicking! 🐱
 
 ## 🎮 How to Play
 
 1. **Load the Game**: Your country is automatically detected
-2. **Click the Image**: Click the Yao Ming Face to increment your counter
-3. **Watch Live**: See your clicks update in real-time
-4. **Compete Globally**: View the live leaderboard below
-5. **Batch Updates**: Clicks are sent to the server every 5 seconds
+2. **Click the Image**: Click the Yao Ming Face meme to count clicks
+3. **Watch the Animation**: See the image switch between left/right versions
+4. **Compete Globally**: Your clicks are added to your country's total
+5. **Check Leaderboard**: View real-time rankings at the bottom of the page
+6. **Expand Details**: Click the leaderboard header to see full rankings
 
 ## 🏗️ Project Structure
 
 ```
-src/
-├── app/
-│   ├── api/
-│   │   ├── clicks/route.ts          # POST - Receives user clicks
-│   │   └── leaderboard/route.ts     # GET - Fallback leaderboard data
-│   ├── page.tsx                     # Main page
-│   └── not-found.tsx                # 404 page
-├── components/
-│   ├── ClickGame.tsx                # Main game component
-│   ├── Leaderboard.tsx              # Accordion-style leaderboard
-│   └── YaoMe.tsx                    # Game wrapper
-├── hooks/
-│   ├── useClickCounter.ts           # Click logic & WebSocket updates
-│   └── useCountryDetection.ts       # Country detection
-├── lib/
-│   └── mongodb.ts                   # Database connection
-└── models/
-    └── CountryClicks.ts             # MongoDB schema
-
-server.js                              # WebSocket server (standalone)
+solana-meme/
+├── src/
+│   ├── app/                    # Next.js App Router
+│   │   ├── api/               # API Routes
+│   │   │   ├── clicks/        # POST /api/clicks
+│   │   │   ├── leaderboard/   # GET /api/leaderboard
+│   │   │   ├── test-env/      # Environment test endpoint
+│   │   │   └── test-websocket # WebSocket test endpoint
+│   │   ├── page.tsx           # Main page
+│   │   └── not-found.tsx      # 404 page
+│   ├── components/             # React Components
+│   │   ├── ClickGame.tsx      # Main game component
+│   │   ├── Leaderboard.tsx    # Leaderboard component
+│   │   └── YaoMe.tsx          # Game wrapper
+│   ├── hooks/                  # Custom React Hooks
+│   │   ├── useClickCounter.ts # Click logic & WebSocket
+│   │   └── useCountryDetection.ts # Country detection
+│   └── lib/                    # Utilities
+│       ├── mongodb.ts          # Database connection
+│       └── mongodb-config.ts   # MongoDB configuration
+├── server.js                   # Standalone WebSocket server
+├── public/                     # Static assets
+│   ├── ym-left.png            # Yao Ming Face (left)
+│   └── ym-right.png           # Yao Ming Face (right)
+├── package.json                # Dependencies & scripts
+├── env.example                 # Environment variables template
+└── README.md                   # This file
 ```
 
 ## 🔌 API Endpoints
 
-### `POST /api/clicks`
-Receives batched clicks from users and triggers WebSocket broadcast.
+### POST `/api/clicks`
+Increment country clicks and trigger real-time updates.
 
 **Request Body:**
 ```json
 {
   "country": "US",
-  "clicks": 25
+  "clicks": 5
 }
 ```
 
@@ -113,302 +126,156 @@ Receives batched clicks from users and triggers WebSocket broadcast.
 {
   "success": true,
   "country": "US",
-  "clicks": 1250,
+  "clicks": 1234,
   "message": "Successfully updated clicks for US",
   "realtime": "WebSocket broadcast triggered"
 }
 ```
 
-### `GET /api/leaderboard`
-Returns top 20 countries sorted by clicks (fallback endpoint).
+### GET `/api/leaderboard`
+Get top 20 countries sorted by clicks.
 
 **Response:**
 ```json
-{
-  "success": true,
-  "leaderboard": [
-    {
-      "country": "US",
-      "clicks": 1250,
-      "updatedAt": "2024-01-15T10:30:00.000Z"
-    }
-  ],
-  "timestamp": "2024-01-15T10:30:00.000Z"
-}
+[
+  {
+    "country": "US",
+    "clicks": 1234,
+    "updatedAt": "2024-01-01T00:00:00.000Z"
+  }
+]
 ```
 
-### WebSocket Server Endpoints
-- **Port**: 3001
-- **Health Check**: `GET http://localhost:3001/health`
-- **Trigger Broadcast**: `POST http://localhost:3001/broadcast`
+### GET `/api/test-env`
+Test environment variable loading.
+
+### GET `/api/test-websocket`
+Test WebSocket server connectivity and broadcast functionality.
 
 ## 🗄️ Database Schema
 
 ### Collection: `country_clicks`
 
 ```typescript
-interface ICountryClicks {
-  country: string;        // Country code (e.g., "US", "SG")
-  clicks: number;         // Total clicks for that country
-  updatedAt: Date;        // Last update timestamp
+interface CountryClicks {
+  country: string;      // Unique country code (e.g., "US", "SG")
+  clicks: number;       // Total clicks for that country
+  updatedAt: Date;      // Last update timestamp
 }
 ```
 
 **Indexes:**
-- `country` (unique, required)
-- `clicks` (for sorting leaderboard)
+- `country` (unique)
+- `clicks` (for sorting)
 
-## 🚀 Real-Time Architecture
+## ⚡ Real-Time Architecture
 
-### WebSockets with Manual Triggers
-- **Zero Latency**: Updates happen instantly when clicks are processed
-- **Event-Driven**: WebSocket broadcasts triggered after database updates
-- **Efficient**: No polling intervals needed
-- **Scalable**: Handles multiple concurrent users efficiently
-- **Universal**: Works with ANY MongoDB Atlas cluster type
-
-### Update Flow
+### WebSocket Flow
 ```
-User Clicks → /api/clicks → Database Update → HTTP Request to WebSocket Server → Broadcast to All Clients → Instant Update
+User Click → 500ms Batch → API Call → Database Update → WebSocket Broadcast → Real-time Update
 ```
 
-### Benefits Over Change Streams
-- ✅ **Works with ANY cluster**: M0, M2, M5, M4+, etc.
-- ✅ **Simpler Setup**: No complex database configuration
-- ✅ **More Reliable**: Manual control over when updates happen
-- ✅ **Easier Debugging**: Clear flow of data
-- ✅ **Better Performance**: No database watching overhead
+### Components
+1. **Frontend**: React hooks with Socket.IO client
+2. **Next.js API**: Handles clicks and triggers WebSocket broadcasts
+3. **WebSocket Server**: Standalone Node.js server with Socket.IO
+4. **Database**: MongoDB Atlas with real-time change detection
 
-## 🌐 Country Detection
-
-- **API**: `https://ipapi.co/json/`
-- **Fallback**: "Unknown" if detection fails
-- **Privacy**: Only country code, no personal data
-
-## 🎨 UI Components
-
-### ClickGame
-- Main game interface
-- Click counter display
-- Yao Ming Face image (clickable)
-- Country detection display
-
-### Leaderboard
-- Accordion-style design
-- Sticky to bottom of page
-- Shows top country and user's country
-- Real-time updates via WebSockets
+### Performance
+- **Click Batching**: 500ms intervals (configurable)
+- **Update Latency**: ~500ms end-to-end
+- **WebSocket**: Persistent connections for instant updates
+- **Database**: Optimized queries with proper indexing
 
 ## 🚀 Deployment
 
-### Vercel (Frontend) + WebSocket Server (Backend)
+### Frontend (Vercel)
+1. Connect your GitHub repository
+2. Set environment variables
+3. Deploy automatically on push
 
-Your app has two parts that need to be deployed separately:
+### WebSocket Server
+Deploy to any Node.js platform:
+- **Railway**: Easy deployment with automatic scaling
+- **Render**: Free tier available, good performance
+- **Heroku**: Classic platform, reliable
 
-#### **Part 1: Deploy WebSocket Server (Backend)**
+See [DEPLOYMENT.md](./DEPLOYMENT.md) for detailed deployment instructions.
 
-Choose one of these platforms for your WebSocket server:
+## 🔧 Configuration
 
-##### **Option A: Railway (Recommended)**
-1. **Go to [Railway](https://railway.app)**
-2. **Sign up/Login** with GitHub
-3. **Create New Project** → Deploy from GitHub
-4. **Select your repository**
-5. **Set Environment Variables**:
-   ```env
-   MONGODB_URI=mongodb+srv://username:password@cluster.mongodb.net/yaome?retryWrites=true&w=majority
-   WEBSOCKET_PORT=3001
-   ```
-6. **Deploy** - Railway will automatically run `npm run websocket`
-7. **Copy the URL** (e.g., `https://your-app.railway.app`)
+### Environment Variables
 
-##### **Option B: Render**
-1. **Go to [Render](https://render.com)**
-2. **Sign up/Login** with GitHub
-3. **New Web Service** → Connect your repository
-4. **Configure**:
-   - **Name**: `yaome-websocket`
-   - **Build Command**: `npm install`
-   - **Start Command**: `npm run websocket`
-   - **Environment Variables**: Add `MONGODB_URI`
-5. **Deploy** and copy the URL
+| Variable | Description | Required | Default |
+|----------|-------------|----------|---------|
+| `MONGODB_URI` | MongoDB Atlas connection string | ✅ | - |
+| `WEBSOCKET_PORT` | WebSocket server port | ❌ | 3001 |
+| `WEBSOCKET_URL` | WebSocket server URL (Next.js API) | ❌ | http://localhost:3001 |
+| `NEXT_PUBLIC_WEBSOCKET_URL` | WebSocket URL (Frontend) | ✅ | http://localhost:3001 |
+| `NODE_ENV` | Environment mode | ❌ | development |
+| `FRONTEND_URL` | Frontend URL for CORS | ❌ | http://localhost:3000 |
 
-##### **Option C: Heroku**
-1. **Go to [Heroku](https://heroku.com)**
-2. **Create New App**
-3. **Connect GitHub repository**
-4. **Set Environment Variables** in Settings
-5. **Deploy** and copy the URL
+### Customization
 
-#### **Part 2: Deploy Next.js App (Frontend) to Vercel**
-
-1. **Push to GitHub**:
-   ```bash
-   git add .
-   git commit -m "Ready for production deployment"
-   git push origin main
-   ```
-
-2. **Go to [Vercel](https://vercel.com)**
-3. **Import Project** → Select your GitHub repository
-4. **Configure Project**:
-   - **Framework Preset**: Next.js
-   - **Root Directory**: `./` (default)
-   - **Build Command**: `npm run build`
-   - **Output Directory**: `.next`
-
-5. **Environment Variables** (Add these in Vercel dashboard):
-   ```env
-   MONGODB_URI=mongodb+srv://username:password@cluster.mongodb.net/yaome?retryWrites=true&w=majority
-   WEBSOCKET_URL=https://your-websocket-server.com
-   ```
-
-6. **Deploy** → Vercel will build and deploy automatically
-
-#### **Part 3: Update WebSocket URL**
-
-After both deployments are complete:
-
-1. **Go back to Vercel dashboard**
-2. **Environment Variables** → Edit `WEBSOCKET_URL`
-3. **Set to your deployed WebSocket server URL**:
-   ```env
-   WEBSOCKET_URL=https://your-app.railway.app
-   ```
-4. **Redeploy** (Vercel will automatically redeploy with new env vars)
-
-### Environment Variables for Production
-
-#### **Frontend (Vercel)**
+#### Click Batching
+Adjust update frequency in `.env.local`:
 ```env
-MONGODB_URI=mongodb+srv://username:password@cluster.mongodb.net/yaome?retryWrites=true&w=majority
-WEBSOCKET_URL=https://your-websocket-server.com
+BATCH_INTERVAL=500  # 0.5 seconds (default)
+BATCH_INTERVAL=100  # 0.1 seconds (super fast)
+BATCH_INTERVAL=1000 # 1 second (slower)
 ```
 
-#### **Backend (WebSocket Server)**
-```env
-MONGODB_URI=mongodb+srv://username:password@cluster.mongodb.net/yaome?retryWrites=true&w=majority
-WEBSOCKET_PORT=3001
-```
-
-### Production Checklist
-
-- ✅ **WebSocket server deployed** and accessible
-- ✅ **Next.js app deployed** to Vercel
-- ✅ **Environment variables set** in both platforms
-- ✅ **MongoDB Atlas** connection string updated
-- ✅ **WebSocket URL** points to production server
-- ✅ **Domain configured** (optional, Vercel provides one)
-
-### Custom Domain (Optional)
-
-1. **In Vercel**: Go to Domains → Add your custom domain
-2. **In WebSocket platform**: Configure custom domain if supported
-3. **Update DNS**: Point your domain to Vercel
-4. **Update environment variables** with custom domains
-
-### Monitoring & Maintenance
-
-#### **Vercel Dashboard**
-- **Analytics**: Page views, performance metrics
-- **Functions**: API route performance
-- **Deployments**: Automatic deployments on git push
-
-#### **WebSocket Server Platform**
-- **Logs**: Monitor server performance
-- **Uptime**: Ensure server stays running
-- **Scaling**: Auto-scale based on demand
-
-### Troubleshooting Production Issues
-
-#### **WebSocket Connection Fails**
-- **Check URL**: Verify `WEBSOCKET_URL` in Vercel
-- **CORS**: Ensure WebSocket server allows your Vercel domain
-- **Firewall**: Check if platform blocks WebSocket connections
-
-#### **MongoDB Connection Issues**
-- **IP Whitelist**: Add Vercel's IPs to MongoDB Atlas
-- **Connection String**: Verify production MongoDB URI
-- **Network**: Check if MongoDB Atlas is accessible
-
-#### **Performance Issues**
-- **Vercel Edge**: Deploy to edge locations for better performance
-- **WebSocket Scaling**: Ensure backend can handle user load
-- **Database**: Monitor MongoDB Atlas performance
-
-### Cost Optimization
-
-#### **Vercel (Frontend)**
-- **Hobby Plan**: Free for personal projects
-- **Pro Plan**: $20/month for team projects
-- **Enterprise**: Custom pricing for large scale
-
-#### **WebSocket Server**
-- **Railway**: Pay-per-use, starts at ~$5/month
-- **Render**: Free tier available, then $7/month
-- **Heroku**: Free tier discontinued, starts at $7/month
-
-#### **MongoDB Atlas**
-- **M0 (Free)**: 512MB storage, shared RAM
-- **M2**: $9/month, 2GB storage
-- **M5**: $25/month, 5GB storage
-
-### Security Considerations
-
-- **Environment Variables**: Never commit `.env.local` to git
-- **MongoDB Atlas**: Use strong passwords, enable 2FA
-- **CORS**: Restrict WebSocket origins in production
-- **Rate Limiting**: Implement API rate limiting
-- **HTTPS**: Always use HTTPS in production
-
-### Backup & Recovery
-
-- **Database**: MongoDB Atlas provides automatic backups
-- **Code**: GitHub serves as your code backup
-- **Environment**: Document all environment variables
-- **Deployment**: Vercel maintains deployment history
-
-## 🔧 Customization
-
-### Change Update Frequency
-Modify the batch interval in `useClickCounter.ts`:
+#### Leaderboard Size
+Modify the limit in API routes:
 ```typescript
-const { handleClick } = useClickCounter({ country, batchInterval: 3000 }); // 3 seconds
+// In /api/leaderboard/route.ts
+.limit(20) // Change to show more/fewer countries
 ```
 
-### Modify Leaderboard Size
-Change the limit in API routes:
-```typescript
-.limit(20) // Show top 20 countries
+## 🧪 Testing
+
+### Test Environment Variables
+```bash
+curl http://localhost:3000/api/test-env
 ```
 
-### Add New Features
-- **User Accounts**: Add authentication
-- **Personal Stats**: Track individual user progress
-- **Achievements**: Unlockable milestones
-- **Social Features**: Share scores on social media
+### Test WebSocket Connection
+```bash
+curl http://localhost:3000/api/test-websocket
+```
+
+### Test Click API
+```bash
+curl -X POST http://localhost:3000/api/clicks \
+  -H "Content-Type: application/json" \
+  -d '{"country":"US","clicks":5}'
+```
 
 ## 🐛 Troubleshooting
 
-### WebSocket Server Not Starting
-- **Check Port**: Ensure port 3001 is available
-- **Environment Variables**: Verify `MONGODB_URI` is set
-- **Dependencies**: Run `npm install` to ensure all packages are installed
+### Common Issues
 
-### Real-Time Updates Not Working
-- **Check WebSocket Server**: Ensure it's running on port 3001
-- **Browser Console**: Look for WebSocket connection errors
-- **Network Issues**: Ensure stable internet connection
+#### WebSocket Connection Failed
+- Check `NEXT_PUBLIC_WEBSOCKET_URL` in `.env.local`
+- Ensure WebSocket server is running (`npm run websocket`)
+- Verify CORS settings in `server.js`
 
-### MongoDB Connection Issues
-- **Connection String**: Verify `MONGODB_URI` format
-- **IP Whitelist**: Ensure your IP is whitelisted in MongoDB Atlas
-- **Credentials**: Check username/password in connection string
+#### Database Connection Error
+- Verify `MONGODB_URI` is correct
+- Check MongoDB Atlas network access
+- Ensure IP whitelist includes your IP
 
-### Performance Issues
-- **Database Indexes**: Ensure proper indexing on `country` and `clicks`
-- **Connection Pool**: MongoDB connection pooling is configured
-- **WebSocket Limits**: Monitor connected client count
+#### Real-time Updates Not Working
+- Check WebSocket server logs
+- Verify environment variables are loaded
+- Test with `/api/test-websocket` endpoint
+
+### Debug Mode
+Enable detailed logging in `server.js`:
+```javascript
+// Add to server.js for debugging
+console.log('🔍 Debug mode enabled');
+```
 
 ## 🤝 Contributing
 
@@ -424,12 +291,14 @@ This project is open source and available under the [MIT License](LICENSE).
 
 ## 🙏 Acknowledgments
 
-- **Socket.IO** for reliable WebSocket implementation
-- **Next.js** for the amazing framework
-- **MongoDB Atlas** for cloud database
-- **Tailwind CSS** for beautiful styling
-- **ipapi.co** for country detection
+- **Yao Ming Face Meme**: The iconic meme that inspired this game
+- **Next.js Team**: For the amazing React framework
+- **Socket.IO**: For real-time WebSocket capabilities
+- **MongoDB Atlas**: For the cloud database service
+- **Tailwind CSS**: For the beautiful styling framework
 
 ---
 
-**Ready to click? Start competing with the world! 🐱✨**
+**Made with ❤️ and lots of clicks! 🐱✨**
+
+*Click the Yao Ming Face to start your global domination!*
