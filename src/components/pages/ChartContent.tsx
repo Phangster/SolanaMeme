@@ -1,6 +1,6 @@
 const ChartContent = () => {
   return (
-    <div className="max-w-6xl mx-auto">
+    <div className="max-w-6xl mx-auto pb-16">
       <h1 className="text-5xl md:text-6xl font-bold mb-8 text-yellow-400 text-center">
         $TROLL Chart
       </h1>

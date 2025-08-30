@@ -20,6 +20,12 @@ const Sidebar = ({ currentRoute, onNavigate, onClose }: SidebarProps) => {
       description: null
     },
     {
+      path: '/yao-me',
+      label: 'YAOME',
+      icon: null,
+      description: null
+    },
+    {
       path: '/how-to-buy',
       label: 'how to buy',
       icon: null,

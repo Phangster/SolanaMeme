@@ -4,7 +4,7 @@ interface OriginsContentProps {
 
 const OriginsContent = ({ onNavigate }: OriginsContentProps) => {
   return (
-    <div className="max-w-4xl mx-auto">
+    <div className="max-w-4xl mx-auto pb-16">
       <h1 className="text-5xl md:text-6xl font-bold mb-8 text-yellow-400 text-center">
         The Origins of $TROLL
       </h1>

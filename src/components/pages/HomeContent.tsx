@@ -4,7 +4,7 @@ interface HomeContentProps {
 
 const HomeContent = ({ onNavigate }: HomeContentProps) => {
   return (
-    <div className="max-w-4xl mx-auto text-center">
+    <div className="max-w-4xl mx-auto text-center pb-16">
       <h1 className="text-6xl md:text-8xl font-bold mb-8 text-yellow-400 font-pixel">
         troll
       </h1>

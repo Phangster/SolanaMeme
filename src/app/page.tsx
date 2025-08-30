@@ -1,12 +1,13 @@
 'use client';
 import { useState, useEffect, useCallback, useRef } from 'react';
-import HomeContent from '@/components/HomeContent';
-import HowToBuyContent from '@/components/HowToBuyContent';
-import OriginsContent from '@/components/OriginsContent';
-import ShortsContent from '@/components/ShortsContent';
-import ChartContent from '@/components/ChartContent';
+import HomeContent from '@/components/pages/HomeContent';
+import HowToBuyContent from '@/components/pages/HowToBuyContent';
+import OriginsContent from '@/components/pages/OriginsContent';
+import ShortsContent from '@/components/pages/ShortsContent';
+import ChartContent from '@/components/pages/ChartContent';
 import Sidebar from '@/components/Sidebar';
 import { useWindowSize } from '@/hooks/useWindowSize';
+import YaoMe from '@/components/pages/YaoMe';
 
 export default function Home() {
   const [currentRoute, setCurrentRoute] = useState('/');
@@ -75,6 +76,8 @@ export default function Home() {
         return <ShortsContent />;
       case '/chart':
         return <ChartContent />;
+      case '/yao-me':
+        return <YaoMe />;
       default:
         return <HomeContent onNavigate={handleNavigation} />;
     }
@@ -114,7 +117,7 @@ export default function Home() {
         {/* Main Content Area - Takes remaining space */}
         <div 
           ref={contentRef}
-          className="flex-1 pt-20 pb-16 px-4 sm:px-6 lg:px-8 overflow-auto h-screen"
+          className="flex-1 pt-20 px-4 sm:px-6 lg:px-8 overflow-auto h-screen"
         >
           {renderContent()}
         </div>
