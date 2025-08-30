@@ -6,7 +6,7 @@ import { useClickCounter } from '@/hooks/useClickCounter';
 import { useCountryDetection } from '@/hooks/useCountryDetection';
 
 export default function HomePage() {
-    const { country } = useCountryDetection();
+    const { country, countryName, isLoading: countryLoading, error: countryError } = useCountryDetection();
     const { 
         leaderboard, 
         error: leaderboardError, 
@@ -14,19 +14,34 @@ export default function HomePage() {
 
   return (
     <Layout currentRoute="/">
-      <div className="max-w-4xl mx-auto text-center">
-        <ClickGame />
+      <div className="flex flex-col min-h-screen">
+        {/* Main Content Area - Takes up available space */}
+        <div className="flex-1 max-w-4xl mx-auto text-center">
+          {/* Country Display */}
+            <div className="bg-white shadow-lg w-fit rounded-full px-3 py-2 border border-gray-200 text-xs absolute top-4 left-4 z-20">
+                {countryLoading ? (
+                <span className="text-gray-500 animate-pulse">Detecting country...</span>
+                ) : countryError ? (
+                <span className="text-red-500">Country: Unknown</span>
+                ) : (
+                <span className="text-gray-900 font-medium">
+                    {countryName}
+                </span>
+                )}
+            </div>
+            
+            <ClickGame />
 
-        {/* Contract Address */}
-        <div className="mb-12 p-4 bg-gray-900 rounded-lg border border-gray-700">
-          <p className="text-sm text-gray-400 mb-2 font-pixel">Contract Address:</p>
-          <p className="font-mono text-lg text-yellow-400 break-all font-pixel">
-            5UUH9RTDiSpq6HKS6bp4NdU9PNJpXRXuiw6ShBTBhgH2
-          </p>
+            <div className="mb-12 p-4 bg-gray-900 rounded-lg border border-gray-700 mt-6">
+                <p className="text-sm text-gray-400 mb-2 font-pixel">Contract Address:</p>
+                <p className="font-mono text-lg text-yellow-400 break-all font-pixel">
+                    5UUH9RTDiSpq6HKS6bp4NdU9PNJpXRXuiw6ShBTBhgH2
+                </p>
+            </div>
         </div>
 
-        {/* Leaderboard Accordion - Sticky to bottom */}
-        <div className="mt-12 sticky bottom-0">
+        {/* Leaderboard - Sticky to bottom, separate from main content */}
+        <div className="sticky bottom-0 z-10 mt-auto">
           <Leaderboard 
             leaderboard={leaderboard}
             isLoading={false}

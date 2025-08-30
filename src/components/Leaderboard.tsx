@@ -35,7 +35,7 @@ const Leaderboard: React.FC<LeaderboardProps> = ({ leaderboard, isLoading, error
 
   if (isLoading) {
     return (
-      <div className="sticky bottom-0 mx-auto w-full max-w-2xl bg-white rounded-t-lg shadow-2xl border border-gray-200 animate-pulse z-10">
+      <div className="mx-auto w-full max-w-2xl bg-white rounded-t-lg shadow-2xl border border-gray-200 animate-pulse z-10">
         <div className="h-6 bg-gray-200 rounded-t-lg mb-4"></div>
         <div className="space-y-3 p-4">
           {[...Array(3)].map((_, i) => (
@@ -48,7 +48,7 @@ const Leaderboard: React.FC<LeaderboardProps> = ({ leaderboard, isLoading, error
 
   if (error) {
     return (
-      <div className="sticky bottom-0 mx-auto w-full max-w-2xl bg-red-50 border border-red-200 rounded-t-lg shadow-2xl z-10">
+      <div className="mx-auto w-full max-w-2xl bg-red-50 border border-red-200 rounded-t-lg shadow-2xl z-10">
         <div className="px-4 py-3">
           <h3 className="text-red-800 font-semibold mb-2">Error Loading Leaderboard</h3>
           <p className="text-red-600 text-sm">{error}</p>
@@ -59,7 +59,7 @@ const Leaderboard: React.FC<LeaderboardProps> = ({ leaderboard, isLoading, error
 
   if (leaderboard.length === 0) {
     return (
-      <div className="sticky bottom-0 mx-auto w-full max-w-2xl bg-white rounded-t-lg shadow-2xl border border-gray-200 z-10">
+      <div className="mx-auto w-full max-w-2xl bg-white rounded-t-lg shadow-2xl border border-gray-200 z-10">
         <div className="px-4 py-3">
           <h3 className="text-gray-900 font-semibold mb-2">Global Leaderboard</h3>
           <p className="text-gray-600 text-sm">No clicks recorded yet. Start clicking to see the leaderboard!</p>
@@ -73,7 +73,7 @@ const Leaderboard: React.FC<LeaderboardProps> = ({ leaderboard, isLoading, error
   const worldwidePPS = calculatePPS(worldwideTotal);
 
   return (
-    <div className="sticky bottom-0 mx-auto w-full max-w-2xl bg-white rounded-t-lg shadow-2xl border border-gray-200 transition-all duration-300 ease-in-out z-10">
+    <div className="mx-auto w-full max-w-2xl bg-white rounded-t-lg shadow-2xl border border-gray-200 transition-all duration-300 ease-in-out z-10">
       {/* Header - Always Visible */}
       <div 
         className="bg-gradient-to-r from-blue-600 to-purple-600 px-6 py-4 rounded-t-lg cursor-pointer hover:from-blue-700 hover:to-purple-700 transition-colors"

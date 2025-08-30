@@ -41,6 +41,21 @@ img {
   user-drag: none;
 }
 
+/* Enhanced sticky positioning for over-scrolling */
+.sticky {
+  position: -webkit-sticky;
+  position: sticky;
+}
+
+/* Ensure sticky elements work with over-scroll */
+html {
+  overscroll-behavior: none;
+}
+
+body {
+  overscroll-behavior: none;
+}
+
 /* Custom scrollbar
 ::-webkit-scrollbar {
   width: 8px;

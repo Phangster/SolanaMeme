@@ -53,10 +53,10 @@ const Sidebar = ({ currentRoute, onNavigate, onClose }: SidebarProps) => {
         onClick={onClose}
       />
       
-      {/* Sidebar - Fixed on mobile, inline on desktop */}
-      <nav className="fixed md:relative top-0 right-0 h-screen w-[275px] bg-white border-l border-gray-200 z-50 overflow-y-auto shadow-2xl md:shadow-none transition-all duration-300">
-        <div className="pt-20 px-6 relative h-full">
-          {/* Close Button for Mobile */}
+      {/* Sidebar - Responsive positioning */}
+      <nav className="md:relative md:top-0 md:h-full fixed top-0 right-0 h-full w-[275px] bg-white border-l border-gray-200 z-50 overflow-y-auto shadow-2xl md:shadow-none transition-all duration-300">
+        <div className="pt-6 px-6 relative h-full">
+          {/* Close Button - Visible on all screen sizes */}
           <button 
             onClick={onClose}
             className="absolute top-4 right-4 text-black hover:text-gray-600 transition-all duration-200 font-pixel hover:scale-110 md:hidden"
@@ -65,7 +65,7 @@ const Sidebar = ({ currentRoute, onNavigate, onClose }: SidebarProps) => {
           </button>
           
           {/* Navigation Items */}
-          <div className="flex flex-col justify-between h-full">
+          <div className="flex flex-col justify-between h-full pt-10 md:mt-0">
             <div className="space-y-4">
               {navigationItems.map((item) => {
                 const isActive = currentRoute === item.path;

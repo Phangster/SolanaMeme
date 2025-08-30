@@ -4,7 +4,7 @@ import Layout from '@/components/Layout';
 export default function ChartPage() {
   return (
     <Layout currentRoute="/chart">
-      <div className="max-w-6xl mx-auto pb-16">
+      <div className="max-w-6xl mx-auto pb-16 pt-20">
         <h1 className="text-5xl md:text-6xl font-bold mb-8 text-yellow-400 text-center">
           $TROLL Chart
         </h1>

@@ -40,7 +40,7 @@ const Layout: React.FC<LayoutProps> = ({ children, currentRoute }) => {
       {!isSidebarVisible && (
         <button 
           onClick={toggleSidebar}
-          className="fixed top-4 right-4 z-50 bg-yellow-400 text-black px-4 py-2 rounded-lg hover:bg-yellow-300 transition-colors font-pixel"
+          className="fixed top-4 right-4 z-50 bg-yellow-400 text-black px-4 py-2 rounded-lg hover:bg-yellow-300 transition-colors font-pixel md:hidden"
         >
           menu
         </button>
@@ -48,21 +48,35 @@ const Layout: React.FC<LayoutProps> = ({ children, currentRoute }) => {
 
       {/* Desktop Layout - Flexbox for sidebar and content */}
       <div className="flex">
-        {/* Main Content Area - Takes remaining space */}
+        {/* Main Content Area - Scrollable */}
         <div 
           ref={contentRef}
-          className="flex-1 pt-20 px-4 sm:px-6 lg:px-8 overflow-auto h-screen"
+          className="flex-1 pt-20 px-4 sm:px-6 lg:px-8 overflow-y-auto h-screen"
         >
           {children}
         </div>
         
-        {/* Sidebar - Always visible on desktop, toggleable on mobile */}
+        {/* Sidebar - Inline on desktop, fixed on mobile */}
         {isSidebarVisible && (
-          <Sidebar 
-            currentRoute={currentRoute} 
-            onNavigate={handleNavigation} 
-            onClose={closeSidebar}
-          />
+          <>
+            {/* Mobile: Fixed overlay sidebar */}
+            <div className="md:hidden fixed right-0 top-20 h-[calc(100vh-5rem)] z-40">
+              <Sidebar 
+                currentRoute={currentRoute} 
+                onNavigate={handleNavigation} 
+                onClose={closeSidebar}
+              />
+            </div>
+            
+            {/* Desktop: Inline sidebar */}
+            <div className="hidden md:block">
+              <Sidebar 
+                currentRoute={currentRoute} 
+                onNavigate={handleNavigation} 
+                onClose={closeSidebar}
+              />
+            </div>
+          </>
         )}
       </div>
     </main>
