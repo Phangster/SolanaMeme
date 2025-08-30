@@ -3,7 +3,7 @@ import { NextResponse } from 'next/server';
 export async function GET() {
   try {
     // Test WebSocket server connection
-    const websocketUrl = process.env.WEBSOCKET_URL || 'http://localhost:3001';
+    const websocketUrl = process.env.NEXT_PUBLIC_WEBSOCKET_URL || 'http://localhost:3001';
     
     const response = await fetch(`${websocketUrl}/health`);
     const healthData = await response.json();

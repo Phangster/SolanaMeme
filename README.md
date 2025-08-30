@@ -245,6 +245,7 @@ git push origin main
    ```env
    MONGODB_URI=mongodb+srv://username:password@cluster.mongodb.net/yaome?retryWrites=true&w=majority
    NODE_ENV=production
+   FRONTEND_URL=xxxx-git-main-xxx.vercel.app
    ```
 6. **Deploy Settings**:
    - Build Command: `npm install`
@@ -258,6 +259,81 @@ git push origin main
 2. **Deploy Frontend to Vercel**
 3. **Update WebSocket URL** in Vercel environment variables
 4. **Test real-time functionality**
+
+## 🔧 Setting Environment Variables in Vercel
+
+### After Generating WebSocket URL in Railway
+
+Once you have your WebSocket server running on Railway and have generated the public domain, you need to set the environment variables in Vercel:
+
+#### 1. Go to Vercel Dashboard
+1. **Visit [vercel.com/dashboard](https://vercel.com/dashboard)**
+2. **Select your project** (solana-meme)
+3. **Click "Settings" tab**
+
+#### 2. Navigate to Environment Variables
+1. **In the left sidebar, click "Environment Variables"**
+2. **You'll see a section to add new variables**
+
+#### 3. Add Required Environment Variables
+
+**Add these one by one:**
+
+##### Variable 1: MONGODB_URI
+- **Name**: `MONGODB_URI`
+- **Value**: `mongodb+srv://username:password@cluster.mongodb.net/yaome?retryWrites=true&w=majority`
+- **Environment**: Production ✅, Preview ✅, Development ✅
+- **Click "Add"**
+
+##### Variable 2: NEXT_PUBLIC_WEBSOCKET_URL (CRITICAL!)
+- **Name**: `NEXT_PUBLIC_WEBSOCKET_URL`
+- **Value**: `https://your-app-name-production.up.railway.app` (your Railway WebSocket URL)
+- **Environment**: Production ✅, Preview ✅, Development ✅
+- **Click "Add"**
+
+#### 4. Redeploy Your App
+1. **After adding all environment variables**
+2. **Go to "Deployments" tab**
+3. **Click "Redeploy" on your latest deployment**
+4. **Or push a new commit** to trigger automatic deployment
+
+#### 5. Verify Environment Variables
+1. **In "Settings" → "Environment Variables"**
+2. **You should see all three variables listed**
+3. **Make sure they're assigned to Production environment**
+
+### Example Environment Variables in Vercel
+
+```env
+# Required for database connection
+MONGODB_URI=mongodb+srv://username:password@cluster.mongodb.net/yaome?retryWrites=true&w=majority
+
+# Required for frontend WebSocket connection (must start with NEXT_PUBLIC_)
+NEXT_PUBLIC_WEBSOCKET_URL=https://solanameme-production.up.railway.app
+```
+
+### ⚠️ Important Notes
+
+- **`NEXT_PUBLIC_WEBSOCKET_URL`** is **CRITICAL** - this is what your frontend uses
+- **Must start with `NEXT_PUBLIC_`** to be accessible in the browser
+- **Use HTTPS URLs** from Railway (not the internal `.railway.internal` URLs)
+- **Redeploy after adding variables** for changes to take effect
+- **Check all environments** (Production, Preview, Development) if needed
+- **Only need 2 environment variables** - MONGODB_URI and NEXT_PUBLIC_WEBSOCKET_URL
+
+### 🔍 Testing Environment Variables
+
+After setting variables and redeploying:
+
+1. **Visit your Vercel app**
+2. **Open Developer Tools → Console**
+3. **Look for WebSocket connection logs**:
+   ```
+   🔌 Connecting to WebSocket server: https://solanameme-production.up.railway.app
+   ✅ WebSocket connected to: https://solanameme-production.up.railway.app
+   ```
+
+If you see connection errors, double-check your `NEXT_PUBLIC_WEBSOCKET_URL` value!
 
 ## 🧪 Testing Production Deployment
 

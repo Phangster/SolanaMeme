@@ -28,7 +28,7 @@ export async function POST(request: NextRequest) {
 
     // Trigger WebSocket broadcast by calling the standalone server
     try {
-      const websocketUrl = process.env.WEBSOCKET_URL || 'http://localhost:3001';
+      const websocketUrl = process.env.NEXT_PUBLIC_WEBSOCKET_URL || 'http://localhost:3001';
       console.log('🔄 Triggering WebSocket broadcast to:', websocketUrl);
       
       const response = await fetch(`${websocketUrl}/broadcast`, {
