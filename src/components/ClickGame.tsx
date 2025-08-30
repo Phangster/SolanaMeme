@@ -1,22 +1,21 @@
-import { useState } from 'react';
+import { useState, useRef, useEffect, useCallback } from 'react';
 import { useCountryDetection } from '@/hooks/useCountryDetection';
 import { useClickCounter } from '@/hooks/useClickCounter';
-import Leaderboard from './Leaderboard';
 import Image from 'next/image';
 
 const ClickGame: React.FC = () => {
   const { country, countryName, isLoading: countryLoading, error: countryError } = useCountryDetection();
   const { 
     localClicks, 
-    leaderboard, 
-    error: leaderboardError, 
     handleClick 
   } = useClickCounter({ country });
 
   const [isAnimating, setIsAnimating] = useState(false);
   const [showLeftImage, setShowLeftImage] = useState(true);
+  const imageRef = useRef<HTMLImageElement>(null);
 
-  const handleImageClick = () => {
+  const handleImageClick = useCallback(() => {
+    console.log('Image clicked!'); // Debug log
     setIsAnimating(true);
     setShowLeftImage(false); // Show right image during click
     
@@ -24,10 +23,50 @@ const ClickGame: React.FC = () => {
     setTimeout(() => {
       setShowLeftImage(true);
       setIsAnimating(false);
-    }, 100); // Half the animation duration to show right image briefly
+    }, 100); // Back to 100ms for faster animation
     
     handleClick();
-  };
+  }, [handleClick]);
+
+  // Handle keyboard events (Shift and Tab keys)
+  const handleKeyDown = useCallback((e: React.KeyboardEvent) => {
+    if (e.key === 'Shift' || e.key === 'Tab') {
+      e.preventDefault(); // Prevent default tab behavior
+      handleImageClick();
+    }
+  }, [handleImageClick]);
+
+  // Set up touch event listeners with passive: false
+  useEffect(() => {
+    const imageElement = imageRef.current;
+    if (!imageElement) return;
+
+    const handleTouchStart = (e: TouchEvent) => {
+      console.log('Touch start detected!'); // Debug log
+      e.preventDefault();
+      handleImageClick();
+    };
+
+    const handleTouchMove = (e: TouchEvent) => {
+      e.preventDefault(); // Prevent scrolling while touching
+    };
+
+    const handleTouchEnd = (e: TouchEvent) => {
+      e.preventDefault();
+    };
+
+    // Add event listeners with passive: false
+    imageElement.addEventListener('touchstart', handleTouchStart, { passive: false });
+    imageElement.addEventListener('touchmove', handleTouchMove, { passive: false });
+    imageElement.addEventListener('touchend', handleTouchEnd, { passive: false });
+
+    // Cleanup
+    return () => {
+      imageElement.removeEventListener('touchstart', handleTouchStart);
+      imageElement.removeEventListener('touchmove', handleTouchMove);
+      imageElement.removeEventListener('touchend', handleTouchEnd);
+    };
+  }, [handleImageClick]);
 
   return (
     <div>
@@ -67,27 +106,29 @@ const ClickGame: React.FC = () => {
             </div>
             <div className="flex items-center justify-center mb-6">
               <Image 
+                ref={imageRef}
                 src={showLeftImage ? "/ym-left.png" : "/ym-right.png"}
                 alt="Yao Ming Face" 
                 width={400}
                 height={400}
-                className={`rounded-lg shadow-lg cursor-pointer transition-all duration-300 hover:scale-105 ${
+                className={`rounded-lg shadow-lg cursor-pointer transition-all duration-100 hover:scale-105 touch-manipulation select-none ${
                   isAnimating ? 'scale-110' : 'scale-100'
                 }`}
                 onClick={handleImageClick}
+                onKeyDown={handleKeyDown}
+                style={{ 
+                  touchAction: 'manipulation',
+                  userSelect: 'none',
+                  WebkitUserSelect: 'none',
+                  WebkitTouchCallout: 'none',
+                  WebkitTapHighlightColor: 'transparent'
+                }}
+                tabIndex={0}
+                priority
+                draggable={false}
               />
             </div>
           </div>
-        </div>
-
-        {/* Leaderboard Accordion - Sticky to bottom */}
-        <div className="mt-12 sticky bottom-0">
-          <Leaderboard 
-            leaderboard={leaderboard}
-            isLoading={false}
-            error={leaderboardError}
-            currentCountry={country}
-          />
         </div>
       </div>
     </div>

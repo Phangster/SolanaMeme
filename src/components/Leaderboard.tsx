@@ -190,14 +190,6 @@ const Leaderboard: React.FC<LeaderboardProps> = ({ leaderboard, isLoading, error
               );
             })}
           </div>
-
-          {/* Footer */}
-          <div className="bg-gray-50 px-6 py-3 border-t border-gray-200">
-            <div className="flex items-center justify-between text-sm text-gray-500">
-              <span>Total Countries: {leaderboard.length}</span>
-              <span>Last updated: {new Date().toLocaleTimeString()}</span>
-            </div>
-          </div>
         </div>
       )}
     </div>
