@@ -34,16 +34,7 @@ const Leaderboard: React.FC<LeaderboardProps> = ({ leaderboard, isLoading, error
   const [isExpanded, setIsExpanded] = useState(false);
 
   if (isLoading) {
-    return (
-      <div className="mx-auto w-full max-w-2xl bg-white rounded-t-lg shadow-2xl border border-gray-200 animate-pulse z-10">
-        <div className="h-6 bg-gray-200 rounded-t-lg mb-4"></div>
-        <div className="space-y-3 p-4">
-          {[...Array(3)].map((_, i) => (
-            <div key={i} className="h-8 bg-gray-200 rounded"></div>
-          ))}
-        </div>
-      </div>
-    );
+    return null; // Remove loading skeleton, show nothing while loading
   }
 
   if (error) {
@@ -84,11 +75,11 @@ const Leaderboard: React.FC<LeaderboardProps> = ({ leaderboard, isLoading, error
             {/* #1 Country */}
             {leaderboard.length > 0 && (
               <div className="flex items-center gap-2">
-                <span className="text-2xl">#1</span>
-                <span className="text-4xl mb-2">
+                <span className="text-xl md:text-2xl">#1</span>
+                <span className="text-3xl md:text-4xl mb-2">
                   {getCountryFlag(leaderboard[0].country)}
                 </span>
-                <span className="text-white/80">
+                <span className="text-white/80 transition-all duration-300">
                   {leaderboard[0].clicks.toLocaleString()}
                 </span>
               </div>
@@ -98,14 +89,11 @@ const Leaderboard: React.FC<LeaderboardProps> = ({ leaderboard, isLoading, error
             {/* Current User's Country */}
             {currentCountry && (
               <div className="flex items-center gap-2">
-                <span className="text-4xl mb-2">
+                <span className="text-3xl md:text-4xl mb-2">
                   {getCountryFlag(currentCountry)}
                 </span>
-                <span className="text-white/80">
-                  {(() => {
-                    const userCountry = leaderboard.find(entry => entry.country === currentCountry);
-                    return userCountry ? `${userCountry.clicks.toLocaleString()}` : '0';
-                  })()}
+                <span className="text-white/80 transition-all duration-300">
+                  {leaderboard.find(entry => entry.country === currentCountry)?.clicks.toLocaleString()}
                 </span>
               </div>
             )}
@@ -120,17 +108,17 @@ const Leaderboard: React.FC<LeaderboardProps> = ({ leaderboard, isLoading, error
       {isExpanded && (
         <div className="max-h-96 overflow-y-auto">
           {/* Worldwide Total */}
-          <div className="bg-gradient-to-r from-yellow-50 to-orange-50 border-b border-gray-200 px-6 py-4">
+          <div className="bg-gradient-to-r from-yellow-50 to-orange-50 border-b border-gray-200 px-4 md:px-6 py-4">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
-                <span className="text-2xl">🏆</span>
-                <span className="font-bold text-gray-900">Worldwide</span>
+                <span className="text-xl md:text-2xl">🏆</span>
+                <span className="font-bold text-gray-900 text-sm md:text-base">Worldwide</span>
               </div>
               <div className="text-right">
-                <div className="text-green-600 font-semibold text-sm">
+                <div className="text-green-600 font-semibold text-xs md:text-sm">
                   {worldwidePPS} PPS
                 </div>
-                <div className="text-gray-900 font-bold text-lg">
+                <div className="text-gray-900 font-bold text-sm md:text-lg">
                   {worldwideTotal.toLocaleString()}
                 </div>
               </div>
@@ -146,31 +134,31 @@ const Leaderboard: React.FC<LeaderboardProps> = ({ leaderboard, isLoading, error
               return (
                 <div
                   key={entry.country}
-                  className={`px-6 py-4 hover:bg-gray-50 transition-colors ${
+                  className={`px-4 md:px-6 py-4 hover:bg-gray-50 transition-colors ${
                     isTop3 ? 'bg-gradient-to-r from-gray-50 to-blue-50' : ''
                   }`}
                 >
                   <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-4">
+                    <div className="flex items-center gap-3 md:gap-4">
                       {/* Rank */}
-                      <div className="w-8 text-center">
+                      <div className="w-6 md:w-8 text-center">
                         {index === 0 ? (
-                          <span className="text-2xl">🥇</span>
+                          <span className="text-xl md:text-2xl">🥇</span>
                         ) : index === 1 ? (
-                          <span className="text-2xl">🥈</span>
+                          <span className="text-xl md:text-2xl">🥈</span>
                         ) : index === 2 ? (
-                          <span className="text-2xl">🥉</span>
+                          <span className="text-xl md:text-2xl">🥉</span>
                         ) : (
-                          <span className="text-gray-500 font-medium text-sm">
+                          <span className="text-gray-500 font-medium text-xs md:text-sm">
                             {index + 1}
                           </span>
                         )}
                       </div>
 
                       {/* Flag and Country */}
-                      <div className="flex items-center gap-3">
-                        <span className="text-xl">{getCountryFlag(entry.country)}</span>
-                        <span className="font-medium text-gray-900 min-w-[80px]">
+                      <div className="flex items-center gap-2 md:gap-3">
+                        <span className="text-lg md:text-xl">{getCountryFlag(entry.country)}</span>
+                        <span className="font-medium text-gray-900 min-w-[60px] md:min-w-[80px] text-xs md:text-sm">
                           {entry.country}
                         </span>
                       </div>
@@ -178,10 +166,10 @@ const Leaderboard: React.FC<LeaderboardProps> = ({ leaderboard, isLoading, error
 
                     {/* PPS and Total Clicks */}
                     <div className="text-right">
-                      <div className="text-green-600 font-semibold text-sm">
+                      <div className="text-green-600 font-semibold text-xs md:text-sm">
                         {pps} PPS
                       </div>
-                      <div className="text-gray-900 font-bold">
+                      <div className="font-bold text-sm md:text-base">
                         {entry.clicks.toLocaleString()}
                       </div>
                     </div>

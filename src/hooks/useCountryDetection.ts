@@ -17,6 +17,13 @@ export const useCountryDetection = () => {
         setIsLoading(true);
         setError(null);
 
+        if (process.env.NODE_ENV === 'development') {
+          setCountry('SG');
+          setCountryName('Singapore');
+          setIsLoading(false);
+          return; // Skip external API call
+        }
+
         const response = await fetch('https://ipapi.co/json/');
         
         if (!response.ok) {

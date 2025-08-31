@@ -10,9 +10,14 @@ export default function HomePage() {
     const { country, countryName, isLoading: countryLoading, error: countryError } = useCountryDetection();
     const { 
         leaderboard, 
-        error: leaderboardError, 
+        error: leaderboardError,
+        isLoading: leaderboardLoading,
     } = useClickCounter({ country });
     const { isMobile } = useWindowSize();
+
+    // Check if both country detection and leaderboard are loaded
+    // Allow game to be enabled if leaderboard is loaded, even if country detection fails
+    const isFullyLoaded = !leaderboardLoading && (!countryLoading || country !== 'Unknown');
 
   return (
     <Layout currentRoute="/">
@@ -24,7 +29,7 @@ export default function HomePage() {
                 {countryLoading ? (
                 <span className="text-gray-500 animate-pulse">Detecting country...</span>
                 ) : countryError ? (
-                <span className="text-red-500">Country: Unknown</span>
+                <span className="text-orange-500">Country: Unknown</span>
                 ) : (
                 <span className="text-gray-900 font-medium">
                     {countryName}
@@ -32,7 +37,7 @@ export default function HomePage() {
                 )}
             </div>
             
-            <ClickGame />
+            <ClickGame isEnabled={isFullyLoaded} />
 
             <div className="mb-12 p-4 bg-gray-900 rounded-lg border border-gray-700 mt-6">
                 <p className="text-sm text-gray-400 mb-2 font-pixel">Contract Address:</p>
@@ -46,7 +51,7 @@ export default function HomePage() {
         <div className={`sticky bottom-0 z-10 ${isMobile ? 'pb-20' : 'pb-0'}`}>
           <Leaderboard 
             leaderboard={leaderboard}
-            isLoading={false}
+            isLoading={leaderboardLoading}
             error={leaderboardError}
             currentCountry={country}
           />
