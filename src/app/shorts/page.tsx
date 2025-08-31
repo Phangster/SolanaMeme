@@ -6,11 +6,11 @@ export default function ShortsPage() {
     <Layout currentRoute="/shorts">
       <div className="max-w-6xl mx-auto pb-16 pt-20">
         <h1 className="text-5xl md:text-6xl font-bold mb-8 text-yellow-400 text-center">
-          $TROLL Shorts
+          $$YAO Shorts
         </h1>
         
         <p className="text-xl text-gray-300 text-center mb-12 max-w-3xl mx-auto">
-          Watch the latest videos, memes, and content from the $TROLL community. 
+          Watch the latest videos, memes, and content from the $$YAO community. 
           From educational content to pure entertainment, we&apos;ve got it all.
         </p>
 
@@ -24,10 +24,10 @@ export default function ShortsPage() {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M14.828 14.828a4 4 0 01-5.656 0M9 10h1m4 0h1m-6 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
                 <p className="mt-2 text-sm text-gray-500">Featured Video Player</p>
-                <p className="text-xs text-gray-600">&ldquo;How $TROLL Became the Internet&apos;s Favorite Memecoin&rdquo;</p>
+                <p className="text-xs text-gray-600">&ldquo;How $$YAO Became the Internet&apos;s Favorite Memecoin&rdquo;</p>
               </div>
             </div>
-            <h3 className="text-xl font-semibold text-white mb-2">How $TROLL Became the Internet&apos;s Favorite Memecoin</h3>
+            <h3 className="text-xl font-semibold text-white mb-2">How $$YAO Became the Internet&apos;s Favorite Memecoin</h3>
             <p className="text-gray-400">Learn the story behind the most iconic memecoin in crypto history.</p>
           </div>
         </div>
@@ -44,7 +44,7 @@ export default function ShortsPage() {
                   </svg>
                 </div>
                 <h4 className="font-semibold text-white text-sm">Community Video {item}</h4>
-                <p className="text-xs text-gray-400">By @trolluser{item}</p>
+                <p className="text-xs text-gray-400">By @$YAOuser{item}</p>
               </div>
             ))}
           </div>
@@ -54,7 +54,7 @@ export default function ShortsPage() {
         <div className="bg-yellow-900/20 rounded-lg border border-yellow-700 p-8 text-center">
           <h2 className="text-3xl font-bold text-yellow-400 mb-4">Submit Your Content</h2>
           <p className="text-gray-300 mb-6">
-            Have a great video about $TROLL? Share it with the community! 
+            Have a great video about $$YAO? Share it with the community! 
             We&apos;re always looking for creative content creators.
           </p>
           <button className="bg-yellow-400 text-black px-6 py-3 rounded-lg hover:bg-yellow-300 transition-colors font-semibold">

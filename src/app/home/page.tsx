@@ -4,6 +4,7 @@ import Layout from '@/components/Layout';
 import Leaderboard from '@/components/Leaderboard';
 import { useClickCounter } from '@/hooks/useClickCounter';
 import { useCountryDetection } from '@/hooks/useCountryDetection';
+import { useWindowSize } from '@/hooks/useWindowSize';
 
 export default function HomePage() {
     const { country, countryName, isLoading: countryLoading, error: countryError } = useCountryDetection();
@@ -11,6 +12,7 @@ export default function HomePage() {
         leaderboard, 
         error: leaderboardError, 
     } = useClickCounter({ country });
+    const { isMobile } = useWindowSize();
 
   return (
     <Layout currentRoute="/">
@@ -41,7 +43,7 @@ export default function HomePage() {
         </div>
 
         {/* Leaderboard - Sticky to bottom, separate from main content */}
-        <div className="sticky bottom-0 z-10 pb-20">
+        <div className={`sticky bottom-0 z-10 ${isMobile ? 'pb-20' : 'pb-0'}`}>
           <Leaderboard 
             leaderboard={leaderboard}
             isLoading={false}

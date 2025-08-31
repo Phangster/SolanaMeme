@@ -36,7 +36,7 @@ export default function HowToBuyPage() {
               <span className="text-lg font-pixel font-bold">step 3</span>
             </div>
             <p className="text-xl text-gray-300">
-              Use a DEX like Raydium or Jupiter to swap SOL for $TROLL
+              Use a DEX like Raydium or Jupiter to swap SOL for $$YAO
             </p>
           </div>
 
@@ -46,7 +46,7 @@ export default function HowToBuyPage() {
               <span className="text-lg font-pixel font-bold">step 4</span>
             </div>
             <p className="text-xl text-gray-300">
-              Add $TROLL to your wallet using the contract address
+              Add $$YAO to your wallet using the contract address
             </p>
           </div>
 
