@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import PageTransitionWrapper from "@/components/PageTransitionWrapper";
 
 export const metadata: Metadata = {
   title: "$YAO",
@@ -13,7 +14,11 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className="font-pixel">{children}</body>
+      <body className="font-pixel">
+        <PageTransitionWrapper>
+          {children}
+        </PageTransitionWrapper>
+      </body>
     </html>
   );
 }

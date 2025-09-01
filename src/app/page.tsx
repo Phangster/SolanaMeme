@@ -1,7 +1,7 @@
 'use client';
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import Image from 'next/image';
+import LoadingPage from '@/components/LoadingPage';
 
 export default function Home() {
   const router = useRouter();
@@ -13,21 +13,8 @@ export default function Home() {
 
   // Show loading while redirecting
   return (
-    <main className="min-h-screen bg-black flex items-center justify-center">
-      <div className="text-center text-white">
-        <div className="mb-4">
-          <Image 
-            src="/ym-left.png"
-            alt="Loading Yao Ming Face" 
-            width={400}
-            height={400}
-            className="animate-spin rounded-lg"
-            priority
-            draggable={false}
-          />
-        </div>
-        <p className="text-lg font-semibold">Loading...</p>
-      </div>
+    <main>
+      <LoadingPage message="Be Patient $YAO..." />
     </main>
   );
 }

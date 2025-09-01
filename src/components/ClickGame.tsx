@@ -1,7 +1,8 @@
-import { useState, useRef, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useCountryDetection } from '@/hooks/useCountryDetection';
 import { useClickCounter } from '@/hooks/useClickCounter';
 import Image from 'next/image';
+import LoadingPage from './LoadingPage';
 
 interface ClickGameProps {
   isEnabled: boolean;
@@ -173,21 +174,12 @@ const ClickGame: React.FC<ClickGameProps> = ({ isEnabled }) => {
       <div className="max-w-2xl mx-auto relative">
         {/* Loading Overlay */}
         {!isEnabled && (
-          <div className="absolute inset-0 bg-black/50 backdrop-blur-sm rounded-lg z-10 flex items-center justify-center">
-            <div className="text-center text-white">
-              <div className="mb-4">
-                <Image 
-                  src="/ym-left.png"
-                  alt="Loading Yao Ming Face" 
-                  width={400}
-                  height={400}
-                  className="animate-spin rounded-lg"
-                  priority
-                  draggable={false}
-                />
-              </div>
-              <p className="text-lg font-semibold">Loading...</p>
-            </div>
+          <div className="absolute inset-0 bg-black rounded-lg z-10">
+            <LoadingPage 
+              message="Loading game..." 
+              variant="minimal"
+              className="bg-transparent"
+            />
           </div>
         )}
         

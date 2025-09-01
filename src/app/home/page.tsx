@@ -2,6 +2,7 @@
 import ClickGame from '@/components/ClickGame';
 import Layout from '@/components/Layout';
 import Leaderboard from '@/components/Leaderboard';
+import LoadingPage from '@/components/LoadingPage';
 import { useClickCounter } from '@/hooks/useClickCounter';
 import { useCountryDetection } from '@/hooks/useCountryDetection';
 import { useWindowSize } from '@/hooks/useWindowSize';
@@ -19,9 +20,18 @@ export default function HomePage() {
     // Allow game to be enabled if leaderboard is loaded, even if country detection fails
     const isFullyLoaded = !leaderboardLoading && (!countryLoading || country !== 'Unknown');
 
+    // Show loading page while data is being fetched
+    if (leaderboardLoading || countryLoading) {
+        return (
+            <Layout currentRoute="/" isLoading={true}>
+                <LoadingPage message="Loading $YAO Country and Leaderboard..."  />
+            </Layout>
+        );
+    }
+
   return (
-    <Layout currentRoute="/">
-      <div className="flex flex-col min-h-screen">
+    <Layout currentRoute="/" isLoading={false}>
+      <div className="flex flex-col min-h-screen pt-20">
         {/* Main Content Area - Takes up available space */}
         <div className="flex-1 max-w-4xl mx-auto text-center">
           {/* Country Display */}

@@ -4,7 +4,7 @@ import Layout from '@/components/Layout';
 export default function OriginsPage() {
   return (
     <Layout currentRoute="/origins">
-      <div className="max-w-4xl mx-auto pb-16">
+      <div className="max-w-4xl mx-auto pb-16 pt-20">
         <h1 className="text-4xl md:text-5xl font-bold mb-8 text-yellow-400 text-center">
           The Origins of $YAO
         </h1>

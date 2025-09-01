@@ -1,13 +1,15 @@
 import React from 'react';
 import Sidebar from './Sidebar';
 import { useSidebar } from '@/hooks/useSidebar';
+import LoadingPage from './LoadingPage';
 
 interface LayoutProps {
   children: React.ReactNode;
   currentRoute: string;
+  isLoading?: boolean;
 }
 
-const Layout: React.FC<LayoutProps> = ({ children, currentRoute }) => {
+const Layout: React.FC<LayoutProps> = ({ children, currentRoute, isLoading = false }) => {
   const {
     isSidebarVisible,
     isMounted,
@@ -21,15 +23,7 @@ const Layout: React.FC<LayoutProps> = ({ children, currentRoute }) => {
   if (!isMounted) {
     return (
       <main className="min-h-screen bg-black">
-        <div className="flex">
-          <div className="flex-1 pt-20 pb-16 px-4 sm:px-6 lg:px-8">
-            <div className="animate-pulse">
-              <div className="h-8 bg-gray-700 rounded mb-4"></div>
-              <div className="h-4 bg-gray-700 rounded mb-2"></div>
-              <div className="h-4 bg-gray-700 rounded"></div>
-            </div>
-          </div>
-        </div>
+        <LoadingPage message="Be Patient $YAO..." />
       </main>
     );
   }
@@ -51,15 +45,15 @@ const Layout: React.FC<LayoutProps> = ({ children, currentRoute }) => {
         {/* Main Content Area - Scrollable */}
         <div 
           ref={contentRef}
-          className="flex-1 pt-20 px-4 sm:px-6 lg:px-8 overflow-y-auto h-screen"
+          className="flex-1 px-4 sm:px-6 lg:px-8 overflow-y-auto h-screen"
         >
           {children}
         </div>
         
-        {/* Sidebar - Inline on desktop, fixed on mobile */}
+        {/* Sidebar - Inline on desktop, fixed on mobile - Hide on desktop during loading */}
         {isSidebarVisible && (
           <>
-            {/* Mobile: Fixed overlay sidebar */}
+            {/* Mobile: Fixed overlay sidebar - Always show if visible */}
             <div className="md:hidden fixed right-0 top-20 h-[calc(100vh-5rem)] z-40">
               <Sidebar 
                 currentRoute={currentRoute} 
@@ -68,14 +62,16 @@ const Layout: React.FC<LayoutProps> = ({ children, currentRoute }) => {
               />
             </div>
             
-            {/* Desktop: Inline sidebar */}
-            <div className="hidden md:block">
-              <Sidebar 
-                currentRoute={currentRoute} 
-                onNavigate={handleNavigation} 
-                onClose={closeSidebar}
-              />
-            </div>
+            {/* Desktop: Inline sidebar - Hide during loading */}
+            {!isLoading && (
+              <div className="hidden md:block">
+                <Sidebar 
+                  currentRoute={currentRoute} 
+                  onNavigate={handleNavigation} 
+                  onClose={closeSidebar}
+                />
+              </div>
+            )}
           </>
         )}
       </div>

@@ -6,11 +6,11 @@ export default function ShortsPage() {
     <Layout currentRoute="/shorts">
       <div className="max-w-6xl mx-auto pb-16 pt-20">
         <h1 className="text-5xl md:text-6xl font-bold mb-8 text-yellow-400 text-center">
-          $$YAO Shorts
+          $YAO Shorts
         </h1>
         
         <p className="text-xl text-gray-300 text-center mb-12 max-w-3xl mx-auto">
-          Watch the latest videos, memes, and content from the $$YAO community. 
+          Watch the latest videos, memes, and content from the $YAO community. 
           From educational content to pure entertainment, we&apos;ve got it all.
         </p>
 
