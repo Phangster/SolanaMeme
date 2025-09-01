@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 
 interface LeaderboardEntry {
   country: string;
@@ -30,12 +30,31 @@ const calculatePPS = (clicks: number): number => {
   return Math.round((clicks / 1000000) * 100) / 100;
 };
 
-const Leaderboard: React.FC<LeaderboardProps> = ({ leaderboard, isLoading, error, currentCountry }) => {
+const Leaderboard: React.FC<LeaderboardProps> = ({ leaderboard, error, currentCountry }) => {
   const [isExpanded, setIsExpanded] = useState(false);
+  const [currentCountryClicks, setCurrentCountryClicks] = useState<number>(0);
+  const [isAnimating, setIsAnimating] = useState(false);
 
-  if (isLoading) {
-    return null; // Remove loading skeleton, show nothing while loading
-  }
+  // Update current country clicks whenever leaderboard or currentCountry changes
+  useEffect(() => {
+    if (currentCountry && leaderboard.length > 0) {
+      const entry = leaderboard.find(entry => entry.country === currentCountry);
+      const newClicks = entry?.clicks || 0;
+      
+      // Only animate if the clicks actually changed
+      if (newClicks !== currentCountryClicks) {
+        setIsAnimating(true);
+        setCurrentCountryClicks(newClicks);
+        
+        // Reset animation after a short delay
+        setTimeout(() => {
+          setIsAnimating(false);
+        }, 300);
+      }
+    } else {
+      setCurrentCountryClicks(0);
+    }
+  }, [leaderboard, currentCountry, currentCountryClicks]);
 
   if (error) {
     return (
@@ -92,8 +111,10 @@ const Leaderboard: React.FC<LeaderboardProps> = ({ leaderboard, isLoading, error
                 <span className="text-3xl md:text-4xl mb-2">
                   {getCountryFlag(currentCountry)}
                 </span>
-                <span className="text-white/80 transition-all duration-300">
-                  {leaderboard.find(entry => entry.country === currentCountry)?.clicks.toLocaleString()}
+                <span className={`text-white/80 transition-all duration-100 ${
+                  isAnimating ? 'text-3xl md:text-4xl font-bold' : ''
+                }`}>
+                  {currentCountryClicks.toLocaleString()}
                 </span>
               </div>
             )}
@@ -169,7 +190,7 @@ const Leaderboard: React.FC<LeaderboardProps> = ({ leaderboard, isLoading, error
                       <div className="text-green-600 font-semibold text-xs md:text-sm">
                         {pps} PPS
                       </div>
-                      <div className="font-bold text-sm md:text-base">
+                      <div className="font-bold text-sm md:text-base text-gray-900">
                         {entry.clicks.toLocaleString()}
                       </div>
                     </div>
