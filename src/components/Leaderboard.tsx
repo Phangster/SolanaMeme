@@ -98,7 +98,7 @@ const Leaderboard: React.FC<LeaderboardProps> = ({ leaderboard, error, currentCo
                 <span className="text-xl md:text-4xl mb-2">
                   {getCountryFlag(leaderboard[0].country)}
                 </span>
-                <span className="text-sm md:text-4xl text-white/80 transition-all duration-300">
+                <span className="text-sm md:text-2xl text-white/80 transition-all duration-300">
                   {leaderboard[0].clicks.toLocaleString()}
                 </span>
               </div>
@@ -111,8 +111,8 @@ const Leaderboard: React.FC<LeaderboardProps> = ({ leaderboard, error, currentCo
                 <span className="text-xl md:text-4xl mb-2">
                   {getCountryFlag(currentCountry)}
                 </span>
-                <span className={`text-white/80 transition-all duration-100 text-sm${
-                  isAnimating ? 'text-2xl md:text-4xl font-bold' : ''
+                <span className={`text-white/80 transition-all duration-100 text-sm md:text-2xl ${
+                  isAnimating ? 'text-xl md:text-4xl font-bold' : ''
                 }`}>
                   {currentCountryClicks.toLocaleString()}
                 </span>
