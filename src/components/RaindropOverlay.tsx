@@ -10,6 +10,8 @@ interface Raindrop {
   size: number;
   opacity: number;
   delay: number;
+  rotation: number;
+  rotationSpeed: number;
 }
 
 const RaindropOverlay: React.FC = () => {
@@ -18,15 +20,15 @@ const RaindropOverlay: React.FC = () => {
   const [fadeOut, setFadeOut] = useState(false);
 
   useEffect(() => {
-    // Start fade out after 9 seconds
+    // Start fade out after 4.5 seconds
     const fadeTimer = setTimeout(() => {
       setFadeOut(true);
-    }, 9000);
+    }, 4500);
 
-    // Hide overlay after 10 seconds
+    // Hide overlay after 5 seconds
     const hideTimer = setTimeout(() => {
       setIsVisible(false);
-    }, 10000);
+    }, 5000);
 
     // Generate initial raindrops with staggered delays
     const initialRaindrops: Raindrop[] = Array.from({ length: 80 }, (_, i) => ({
@@ -37,6 +39,8 @@ const RaindropOverlay: React.FC = () => {
       size: 20 + Math.random() * 60, // Size range: 20-80px
       opacity: 0.4 + Math.random() * 0.6,
       delay: Math.random() * 2000, // Staggered start
+      rotation: 0, // Start at 0 degrees
+      rotationSpeed: (Math.random() - 0.5) * 4, // Random rotation speed between -2 and +2 degrees per frame
     }));
 
     setRaindrops(initialRaindrops);
@@ -47,11 +51,14 @@ const RaindropOverlay: React.FC = () => {
         prev.map(drop => ({
           ...drop,
           y: drop.y + drop.speed,
+          rotation: drop.rotation + drop.rotationSpeed, // Continuously rotate
           // Reset raindrop when it goes off screen
           ...(drop.y > (typeof window !== 'undefined' ? window.innerHeight : 800) && {
             y: -50 - Math.random() * 200,
             x: Math.random() * (typeof window !== 'undefined' ? window.innerWidth : 1200),
             delay: Math.random() * 1000,
+            rotation: 0, // Reset rotation
+            rotationSpeed: (Math.random() - 0.5) * 4, // New random rotation speed
           }),
         }))
       );
@@ -87,6 +94,7 @@ const RaindropOverlay: React.FC = () => {
             height: `${drop.size}px`,
             opacity: drop.opacity,
             animationDelay: `${drop.delay}ms`,
+            transform: `rotate(${drop.rotation}deg)`,
           }}
         >
           <Image 

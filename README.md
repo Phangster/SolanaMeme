@@ -27,6 +27,7 @@ A modern, real-time click counter game built with **Next.js**, **MongoDB Atlas**
 - **Styling**: Tailwind CSS
 - **Database**: MongoDB Atlas
 - **Real-Time**: Socket.IO WebSockets
+- **Video Hosting**: Cloudinary (for video content)
 - **Deployment**: Vercel (Frontend) + Railway/Render/Heroku (WebSocket Server)
 - **Country API**: ipapi.co for geolocation
 
@@ -35,6 +36,7 @@ A modern, real-time click counter game built with **Next.js**, **MongoDB Atlas**
 ### Prerequisites
 - Node.js 18+ 
 - MongoDB Atlas account
+- Cloudinary account (for video hosting)
 - Git
 
 ### 1. Clone & Install
@@ -58,6 +60,9 @@ NEXT_PUBLIC_WEBSOCKET_URL=http://localhost:3001
 # Production Configuration
 NODE_ENV=development
 FRONTEND_URL=http://localhost:3000
+
+# Cloudinary Configuration (for video hosting)
+NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME=your_cloud_name
 ```
 
 ### 3. Start Development
@@ -74,6 +79,250 @@ npm run dev:full
 
 ### 4. Open Your Browser
 Navigate to `http://localhost:3000` and start clicking! 🐱
+
+## 📹 Cloudinary Video Integration
+
+This project uses **Cloudinary** for hosting and delivering video content with automatic optimization and global CDN.
+
+### 🎯 Why Cloudinary?
+
+- **🚀 Performance**: Global CDN with automatic optimization
+- **📱 Responsive**: Automatic format selection (MP4, WebM)
+- **🔧 Easy Integration**: Simple URL-based transformations
+- **💰 Cost-Effective**: Free tier available with generous limits
+- **🌐 Global Delivery**: Fast video loading worldwide
+
+### 📋 Cloudinary Setup Steps
+
+#### 1. Create Cloudinary Account
+1. **Go to [cloudinary.com](https://cloudinary.com)**
+2. **Sign up for a free account**
+3. **Verify your email address**
+
+#### 2. Get Your Cloud Name
+1. **Go to your [Cloudinary Dashboard](https://cloudinary.com/console)**
+2. **Copy your Cloud Name** from the dashboard
+3. **This is your unique identifier** (e.g., `phangster`)
+
+#### 3. Upload Your Videos
+1. **Go to [Media Library](https://cloudinary.com/console/media_library)**
+2. **Upload your video files** (MP4 recommended)
+3. **Note the Public IDs** of your uploaded videos
+
+#### 4. Configure Environment Variables
+Add to your `.env.local`:
+```env
+NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME=your_cloud_name
+```
+
+#### 5. Update Video URLs in Code
+In `src/app/shorts/page.tsx`, update your video arrays:
+
+```typescript
+const featuredVideo = {
+  title: 'Your Video Title',
+  description: 'Your video description',
+  url: 'https://res.cloudinary.com/your_cloud_name/video/upload/f_auto,q_auto/your_public_id.mp4',
+};
+
+const communityVideos = [
+  {
+    title: 'Community Video 1',
+    contributor: '@username',
+    url: 'https://res.cloudinary.com/your_cloud_name/video/upload/f_auto,q_auto/your_public_id.mp4',
+  },
+  // ... more videos
+];
+```
+
+### 🎬 Video URL Format
+
+#### Direct Video URL (Recommended)
+```
+https://res.cloudinary.com/{cloud_name}/video/upload/{transformations}/{public_id}.mp4
+```
+
+**Example:**
+```
+https://res.cloudinary.com/phangster/video/upload/f_auto,q_auto/fbfvyesdazi9nrglrw1m.mp4
+```
+
+#### URL Parameters Explained
+- `f_auto` - Automatic format selection (MP4/WebM)
+- `q_auto` - Automatic quality optimization
+- `w_auto` - Automatic width scaling (optional)
+- `h_auto` - Automatic height scaling (optional)
+
+### 🎮 Video Features in Your App
+
+#### Featured Video
+- **Autoplay**: Starts playing when page loads (muted for browser compliance)
+- **Mute/Unmute Toggle**: Clear button to enable/disable audio
+- **Loop**: Video plays continuously
+- **Responsive**: Scales to fit container
+
+#### Community Videos
+- **Grid Layout**: Multiple videos in responsive grid
+- **Individual Controls**: Each video has its own mute/unmute button
+- **Autoplay**: All videos start playing automatically (muted)
+- **Independent State**: Muting one video doesn't affect others
+
+### 🔧 Video Optimization Tips
+
+#### 1. File Preparation
+- **Format**: Use MP4 (H.264) for best compatibility
+- **Resolution**: 1920x1080 (1080p) or 1280x720 (720p)
+- **Duration**: Keep videos under 30 seconds for better performance
+- **File Size**: Aim for under 10MB per video
+
+#### 2. Cloudinary Transformations
+```javascript
+// High quality, auto format
+f_auto,q_auto
+
+// Responsive with specific dimensions
+f_auto,q_auto,w_640,h_360,c_fill
+
+// Lower quality for faster loading
+f_auto,q_eco
+
+// Specific quality level
+f_auto,q_80
+```
+
+#### 3. Performance Optimization
+- **Lazy Loading**: Videos only load when scrolled into view
+- **Muted Autoplay**: Complies with browser autoplay policies
+- **Progressive Enhancement**: Fallback images for slow connections
+
+### 🚀 Production Deployment
+
+#### Vercel Environment Variables
+Add to your Vercel project settings:
+```env
+NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME=your_cloud_name
+```
+
+#### Video URL Updates
+Ensure all video URLs use your production cloud name:
+```typescript
+// Update all video URLs to use your cloud name
+const videoUrl = `https://res.cloudinary.com/${process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME}/video/upload/f_auto,q_auto/${publicId}.mp4`;
+```
+
+### 📊 Cloudinary Dashboard Features
+
+#### Media Library
+- **Upload Management**: Drag & drop video uploads
+- **Public ID Management**: Custom naming for your videos
+- **Folder Organization**: Organize videos in folders
+- **Bulk Operations**: Upload multiple videos at once
+
+#### Analytics
+- **Bandwidth Usage**: Track video delivery costs
+- **View Statistics**: See how often videos are accessed
+- **Performance Metrics**: Monitor loading times
+- **Usage Alerts**: Get notified of usage limits
+
+#### Transformations
+- **Real-time Preview**: Test transformations before implementing
+- **URL Builder**: Visual tool for building transformation URLs
+- **Preset Creation**: Save common transformation sets
+- **Quality Optimization**: Automatic quality adjustments
+
+### 💰 Cloudinary Pricing
+
+#### Free Tier
+- **25 GB storage**
+- **25 GB bandwidth/month**
+- **25,000 transformations/month**
+- **Perfect for development and small projects**
+
+#### Paid Plans
+- **Plus**: $89/month - 100 GB storage, 100 GB bandwidth
+- **Advanced**: $249/month - 500 GB storage, 500 GB bandwidth
+- **Enterprise**: Custom pricing for large-scale applications
+
+### 🔒 Security Best Practices
+
+#### 1. Access Control
+- **Signed URLs**: For private video content
+- **Token Authentication**: Secure video access
+- **IP Restrictions**: Limit access by IP address
+- **Time-based URLs**: Expiring video links
+
+#### 2. Content Protection
+- **Watermarking**: Add your logo to videos
+- **Hotlink Protection**: Prevent unauthorized embedding
+- **Domain Restrictions**: Limit where videos can be embedded
+- **DRM Support**: For premium content protection
+
+### 🐛 Troubleshooting
+
+#### Common Issues
+
+##### Videos Not Loading
+- **Check Cloud Name**: Verify `NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME` is correct
+- **Verify Public IDs**: Ensure video public IDs match exactly
+- **Network Issues**: Check if Cloudinary is accessible
+- **CORS Problems**: Ensure proper CORS configuration
+
+##### Autoplay Not Working
+- **Browser Policies**: Most browsers block autoplay with sound
+- **Muted Requirement**: Videos must be muted for autoplay
+- **User Interaction**: Some browsers require user interaction first
+- **Mobile Limitations**: iOS Safari has strict autoplay policies
+
+##### Performance Issues
+- **File Size**: Large video files cause slow loading
+- **Quality Settings**: Use `q_auto` for automatic optimization
+- **Format Selection**: `f_auto` chooses best format for device
+- **CDN Issues**: Check Cloudinary's status page
+
+#### Debug Steps
+```javascript
+// Test video URL accessibility
+fetch('https://res.cloudinary.com/your_cloud_name/video/upload/f_auto,q_auto/your_public_id.mp4')
+  .then(response => console.log('Video accessible:', response.ok))
+  .catch(error => console.error('Video error:', error));
+
+// Check environment variable
+console.log('Cloud Name:', process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME);
+```
+
+### 📱 Mobile Optimization
+
+#### Responsive Video
+- **Aspect Ratio**: Use `aspect-video` class for 16:9 ratio
+- **Touch Controls**: Ensure video controls are touch-friendly
+- **Bandwidth Awareness**: Use lower quality on mobile networks
+- **Battery Optimization**: Pause videos when not visible
+
+#### iOS Safari Considerations
+- **Autoplay Restrictions**: Very limited autoplay support
+- **Fullscreen Behavior**: Videos may open in fullscreen
+- **Audio Policies**: Strict audio autoplay blocking
+- **Touch Events**: Require user interaction for audio
+
+### 🎯 Best Practices
+
+#### 1. Video Content
+- **Keep it Short**: 10-30 seconds for best engagement
+- **High Quality**: Use good lighting and clear audio
+- **Compelling Thumbnails**: First frame should be engaging
+- **Consistent Branding**: Maintain visual consistency
+
+#### 2. Technical Implementation
+- **Lazy Loading**: Only load videos when needed
+- **Error Handling**: Provide fallbacks for failed loads
+- **Loading States**: Show spinners while videos load
+- **Accessibility**: Include captions and descriptions
+
+#### 3. Performance Monitoring
+- **Track Loading Times**: Monitor video performance
+- **User Engagement**: Measure video completion rates
+- **Bandwidth Usage**: Monitor Cloudinary usage
+- **Error Rates**: Track failed video loads
 
 ## 🎮 How to Play
 
@@ -633,6 +882,7 @@ You've successfully deployed your YaoMe click counter game to production!
 | `WEBSOCKET_PORT` | WebSocket server port | ❌ | 3001 |
 | `WEBSOCKET_URL` | WebSocket server URL (Next.js API) | ❌ | http://localhost:3001 |
 | `NEXT_PUBLIC_WEBSOCKET_URL` | WebSocket URL (Frontend) | ✅ | http://localhost:3001 |
+| `NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME` | Cloudinary cloud name for video hosting | ✅ | - |
 | `NODE_ENV` | Environment mode | ❌ | development |
 | `FRONTEND_URL` | Frontend URL for CORS | ❌ | http://localhost:3000 |
 
