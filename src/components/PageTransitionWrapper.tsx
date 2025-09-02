@@ -8,24 +8,24 @@ interface PageTransitionWrapperProps {
 }
 
 const PageTransitionWrapper: React.FC<PageTransitionWrapperProps> = ({ children }) => {
-  const [showOverlay, setShowOverlay] = useState(false);
+  const [showOverlay, setShowOverlay] = useState(true); // Start with true to show on initial load
   const pathname = usePathname();
 
   useEffect(() => {
     // Show overlay on every route change
     setShowOverlay(true);
     
-    // Hide overlay after 10 seconds
+    // Hide overlay after 5 seconds
     const timer = setTimeout(() => {
       setShowOverlay(false);
-    }, 10000);
+    }, 5000);
 
     return () => clearTimeout(timer);
   }, [pathname]);
 
   return (
     <>
-      {showOverlay && <RaindropOverlay />}
+      {showOverlay && <RaindropOverlay key={pathname} />}
       {children}
     </>
   );
