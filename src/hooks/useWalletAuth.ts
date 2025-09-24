@@ -79,12 +79,10 @@ export const useWalletAuth = () => {
   const fetchUserData = useCallback(async (token: string) => {
     // Prevent duplicate calls
     if (hasFetchedUserData.current) {
-      console.log('🔍 Skipping fetchUserData - already fetched');
       return;
     }
     
     hasFetchedUserData.current = true;
-    console.log('🔍 Fetching user data with token');
     
     try {
       const response = await fetch('/api/me', {
@@ -127,15 +125,8 @@ export const useWalletAuth = () => {
   }, []);
 
   const authenticate = useCallback(async () => {
-    console.log('🔍 Authenticate called - Wallet state:', {
-      hasPublicKey: !!publicKey,
-      hasSignMessage: !!signMessage,
-      connected,
-      publicKey: publicKey?.toString()
-    });
 
     if (!publicKey || !signMessage || !connected) {
-      console.log('❌ Authentication conditions not met');
       setAuthState(prev => ({
         ...prev,
         error: 'Wallet not connected',
@@ -243,7 +234,6 @@ export const useWalletAuth = () => {
       if (error instanceof Error && 
           (error.message.includes('User rejected') || error.message.includes('User rejected the request'))) {
         // User cancelled - just reset state silently
-        console.log('🔍 User cancelled authentication - resetting state');
         userCancelled.current = true; // Set cancellation flag
         setAuthState(prev => ({
           ...prev,
@@ -280,22 +270,12 @@ export const useWalletAuth = () => {
 
   // Handle wallet connection - only call API when necessary
   useEffect(() => {
-    console.log('🔍 Wallet connection effect triggered:', {
-      connected,
-      hasPublicKey: !!publicKey,
-      isAuthenticated: authState.isAuthenticated,
-      isLoading: authState.isLoading,
-      userCancelled: userCancelled.current,
-      walletAddress: publicKey?.toString()
-    });
 
     if (connected && publicKey && !authState.isAuthenticated && !authState.isLoading && !userCancelled.current) {
       const savedToken = localStorage.getItem('wallet_token');
-      console.log('🔍 Checking for saved token:', { hasToken: !!savedToken, walletAddress: publicKey.toString() });
       
       if (savedToken) {
         // Restore session with saved token
-        console.log('🔍 Restoring session with saved token');
         setAuthState(prev => ({
           ...prev,
           token: savedToken,
@@ -305,24 +285,10 @@ export const useWalletAuth = () => {
         fetchUserData(savedToken);
       } else if (signMessage) {
         // No saved token - auto-authenticate
-        console.log('🔍 Auto-authenticating - no saved token');
         authenticate();
       }
-    } else if (userCancelled.current) {
-      console.log('🔍 Skipping auto-authentication - user cancelled');
     }
   }, [connected, publicKey, signMessage, authState.isAuthenticated, authState.isLoading, authenticate, fetchUserData]);
-
-  // Debug authentication state changes
-  useEffect(() => {
-    console.log('🔍 Auth state changed:', {
-      isAuthenticated: authState.isAuthenticated,
-      isLoading: authState.isLoading,
-      hasToken: !!authState.token,
-      hasUser: !!authState.user,
-      error: authState.error
-    });
-  }, [authState.isAuthenticated, authState.isLoading, authState.token, authState.user, authState.error]);
 
   // Handle wallet disconnection
   useEffect(() => {
