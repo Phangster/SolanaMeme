@@ -1,4 +1,6 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
+import { useWallet } from '@solana/wallet-adapter-react';
+import { useWalletAuth } from '@/hooks/useWalletAuth';
 import { useCountryDetection } from '@/hooks/useCountryDetection';
 import { useClickCounter } from '@/hooks/useClickCounter';
 import Image from 'next/image';
@@ -9,6 +11,8 @@ interface ClickGameProps {
 }
 
 const ClickGame: React.FC<ClickGameProps> = ({ isEnabled }) => {
+  const { connected } = useWallet();
+  const { isAuthenticated, token, refreshUserData } = useWalletAuth();
   const { country } = useCountryDetection();
   const { 
     localClicks, 
@@ -41,7 +45,6 @@ const ClickGame: React.FC<ClickGameProps> = ({ isEnabled }) => {
       audio.addEventListener('canplaythrough', () => {
         if (i === 0) { // Only set loaded state once
           setIsAudioLoaded(true);
-          console.log('Audio pool loaded successfully');
         }
       });
       
@@ -79,6 +82,31 @@ const ClickGame: React.FC<ClickGameProps> = ({ isEnabled }) => {
     }
   }, [isAudioLoaded, initializeAudio]);
 
+  // Handle personal clicks for authenticated users
+  const handlePersonalClick = useCallback(async () => {
+    if (!token || !connected || !isAuthenticated) return;
+
+    try {
+      const response = await fetch('/api/user/clicks', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
+        },
+        body: JSON.stringify({ clicks: 1 }),
+      });
+
+      if (response.ok) {
+        // Refresh user data to get updated click count
+        await refreshUserData();
+      } else {
+        console.error('Failed to increment personal clicks');
+      }
+    } catch (error) {
+      console.error('Error incrementing personal clicks:', error);
+    }
+  }, [token, connected, isAuthenticated, refreshUserData]);
+
   // Cleanup audio on unmount
   useEffect(() => {
     return () => {
@@ -94,9 +122,7 @@ const ClickGame: React.FC<ClickGameProps> = ({ isEnabled }) => {
   const handleImageClick = useCallback(() => {
     // Prevent clicking if game is not enabled
     if (!isEnabled) return;
-    
-    console.log('Image clicked!'); // Debug log
-    
+        
     // Play sound effect
     playClickSound();
     
@@ -109,8 +135,14 @@ const ClickGame: React.FC<ClickGameProps> = ({ isEnabled }) => {
       setIsAnimating(false);
     }, 100); // Back to 100ms for faster animation
     
+    // Handle global clicks (existing functionality)
     handleClick();
-  }, [handleClick, playClickSound, isEnabled]);
+    
+    // Handle personal clicks if user is authenticated
+    if (connected && isAuthenticated && token) {
+      handlePersonalClick();
+    }
+  }, [handleClick, playClickSound, isEnabled, connected, isAuthenticated, token, handlePersonalClick]);
 
   // Handle keyboard events (Shift and Tab keys)
   const handleKeyDown = useCallback((e: React.KeyboardEvent) => {
@@ -129,8 +161,6 @@ const ClickGame: React.FC<ClickGameProps> = ({ isEnabled }) => {
 
     const handleTouchStart = (e: TouchEvent) => {
       if (!isEnabled) return; // Prevent touch clicks if disabled
-      
-      console.log('Touch start detected!'); // Debug log
       e.preventDefault();
       handleImageClick();
     };

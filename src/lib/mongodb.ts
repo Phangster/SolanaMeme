@@ -1,5 +1,4 @@
 import mongoose from 'mongoose';
-import { configureMongoDBForChangeStreams } from './mongodb-config';
 
 const MONGODB_URI = process.env.MONGODB_URI!;
 
@@ -15,30 +14,15 @@ async function dbConnect() {
   }
 
   try {
-    // Use Change Streams configuration
-    const options = configureMongoDBForChangeStreams();
-    
-    await mongoose.connect(MONGODB_URI, options);
+    // Basic MongoDB connection without change streams
+    await mongoose.connect(MONGODB_URI, {
+      bufferCommands: false,
+      maxPoolSize: 10,
+      serverSelectionTimeoutMS: 5000,
+      socketTimeoutMS: 45000,
+    });
 
     isConnected = true;
-    console.log('✅ MongoDB connected successfully with Change Streams support');
-
-    // Test change stream capability
-    try {
-      const db = mongoose.connection.db;
-      if (db) {
-        const adminDb = db.admin();
-        const status = await adminDb.replSetGetStatus();
-        
-        if (status.ok === 1) {
-          console.log('🚀 Change Streams are fully supported!');
-        } else {
-          console.log('⚠️ Change Streams may have limited support');
-        }
-      }
-    } catch (error) {
-      console.log('ℹ️ Change Streams support check skipped:', error instanceof Error ? error.message : 'Unknown error');
-    }
 
     return mongoose;
   } catch {

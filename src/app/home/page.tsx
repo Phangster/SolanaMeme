@@ -48,13 +48,6 @@ export default function HomePage() {
             </div>
             
             <ClickGame isEnabled={isFullyLoaded} />
-
-            <div className="mb-12 p-4 bg-gray-900 rounded-lg border border-gray-700 mt-6">
-                <p className="text-sm text-gray-400 mb-2 font-pixel">Contract Address:</p>
-                <p className="font-mono text-lg text-yellow-400 break-all font-pixel">
-                    5UUH9RTDiSpq6HKS6bp4NdU9PNJpXRXuiw6ShBTBhgH2
-                </p>
-            </div>
         </div>
 
         {/* Leaderboard - Sticky to bottom, separate from main content */}

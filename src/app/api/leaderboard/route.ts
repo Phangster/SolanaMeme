@@ -20,7 +20,7 @@ export async function GET() {
     });
 
   } catch (error) {
-    console.error('Error in /api/leaderboard:', error);
+    console.error('Error getting leaderboard:', error);
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }

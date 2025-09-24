@@ -29,7 +29,6 @@ export async function POST(request: NextRequest) {
     // Trigger WebSocket broadcast by calling the standalone server
     try {
       const websocketUrl = process.env.NEXT_PUBLIC_WEBSOCKET_URL || 'http://localhost:3001';
-      console.log('🔄 Triggering WebSocket broadcast to:', websocketUrl);
       
       const response = await fetch(`${websocketUrl}/broadcast`, {
         method: 'POST',
@@ -37,11 +36,8 @@ export async function POST(request: NextRequest) {
         body: JSON.stringify({ action: 'updateLeaderboard' })
       });
       
-      if (response.ok) {
-        const result = await response.json();
-        console.log('✅ WebSocket broadcast successful:', result);
-      } else {
-        console.log('⚠️ WebSocket broadcast failed with status:', response.status);
+      if (!response.ok) {
+        console.log('⚠️ WebSocket broadcast failed with status:', response.status);      
       }
     } catch (websocketError: unknown) {
       const errorMessage = websocketError instanceof Error ? websocketError.message : 'Unknown error';

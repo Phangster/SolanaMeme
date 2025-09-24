@@ -19,7 +19,6 @@ const RaindropOverlay: React.FC = () => {
   const [isVisible, setIsVisible] = useState(true);
   const [fadeOut, setFadeOut] = useState(false);
 
-  console.log('🌧️ RaindropOverlay rendered, isVisible:', isVisible, 'raindrops count:', raindrops.length);
 
   useEffect(() => {
     // Start fade out after 4.5 seconds

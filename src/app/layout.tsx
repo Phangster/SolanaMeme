@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import PageTransitionWrapper from "@/components/PageTransitionWrapper";
+import WalletProviderWrapper from "@/components/WalletProvider";
 
 export const metadata: Metadata = {
   title: "$YAO",
@@ -15,9 +16,11 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className="font-pixel">
-        <PageTransitionWrapper>
-          {children}
-        </PageTransitionWrapper>
+        <WalletProviderWrapper>
+          <PageTransitionWrapper>
+            {children}
+          </PageTransitionWrapper>
+        </WalletProviderWrapper>
       </body>
     </html>
   );

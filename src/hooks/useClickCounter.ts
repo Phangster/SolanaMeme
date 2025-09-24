@@ -113,7 +113,6 @@ export const useClickCounter = ({ country, batchInterval = 500 }: UseClickCounte
 
     // Get WebSocket URL from environment or fallback to localhost
     const websocketUrl = process.env.NEXT_PUBLIC_WEBSOCKET_URL || 'http://localhost:3001';
-    console.log('🔌 Connecting to WebSocket server:', websocketUrl);
 
     // Create Socket.IO connection
     const socket = io(websocketUrl);
@@ -145,17 +144,11 @@ export const useClickCounter = ({ country, batchInterval = 500 }: UseClickCounte
     // Handle leaderboard updates
     socket.on('leaderboardUpdate', (data: { leaderboard?: LeaderboardEntry[]; type?: string }) => {
       try {
-        console.log('📡 Received WebSocket data:', data);
         if (data.leaderboard) {
           setLeaderboard(data.leaderboard);
           setError(null);
           setIsLoading(false); // Set loading to false when first data is received
           clearTimeout(connectionTimeout);
-          
-          // Log update type for debugging
-          if (data.type === 'update') {
-            console.log('🎯 Real-time leaderboard update received');
-          }
         }
       } catch (err) {
         console.error('Error processing WebSocket data:', err);
