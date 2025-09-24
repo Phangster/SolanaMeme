@@ -22,7 +22,7 @@ interface NavItem {
 const Sidebar = ({ currentRoute, onNavigate, onClose }: SidebarProps) => {
   const { connected } = useWallet();
   const { setVisible } = useWalletModal();
-  const { isAuthenticated, isLoading, user, forceUpdate } = useWalletAuth();
+  const { isAuthenticated, isLoading, user, forceUpdate, authenticate } = useWalletAuth();
 
   // Track if authentication just completed for animation
   const [justAuthenticated, setJustAuthenticated] = useState(false);
@@ -229,18 +229,30 @@ const Sidebar = ({ currentRoute, onNavigate, onClose }: SidebarProps) => {
                 // Not connected or not authenticated - Show connection button
                 <button 
                   key={`connect-${connected}-${isAuthenticated}-${renderKey}-${forceUpdate}-${forceRender}`}
-                  onClick={() => {
+                  onClick={async () => {
+                    console.log('🔍 Button clicked - State:', { connected, isAuthenticated, isLoading });
+                    
                     if (!connected) {
-                      // Open wallet selection modal - authentication will happen automatically
+                      // Open wallet selection modal
+                      console.log('🔍 Opening wallet modal');
                       setVisible(true);
+                    } else if (connected && !isAuthenticated && !isLoading) {
+                      // Wallet is connected but not authenticated - trigger manual authentication
+                      console.log('🔍 Triggering manual authentication');
+                      await authenticate();
+                    } else if (connected && isAuthenticated) {
+                      // Navigate to dashboard
+                      console.log('🔍 Navigating to dashboard');
+                      onNavigate('/dashboard');
                     }
                   }}
-                  disabled={isLoading || (connected && !isAuthenticated)}
+                  disabled={isLoading}
                   className="inline-block bg-yellow-400 text-black px-8 py-4 text-xl font-bold rounded-lg hover:bg-yellow-300 transition-all duration-500 transform hover:scale-105 font-pixel mb-10 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {isLoading ? 'LOADING...' : 
                   !connected ? 'BECOME A YAO NOW' :
-                  'CONNECTING'}
+                  connected && !isAuthenticated ? 'BECOME A YAO NOW' :
+                  'DASHBOARD'}
                 </button>
               )}
             </div>
