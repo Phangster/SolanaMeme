@@ -1,10 +1,7 @@
 import mongoose from 'mongoose';
 
-export interface IPostComment extends mongoose.Document {
-  wallet: string;
-  content: string;
-  createdAt: Date;
-}
+// Note: Comments are now stored in a separate Comment model
+// and referenced by ID for better performance and scalability
 
 export interface IPostLike extends mongoose.Document {
   wallet: string;
@@ -19,26 +16,9 @@ export interface IPost extends mongoose.Document {
   createdAt: Date;
   updatedAt: Date;
   likes: IPostLike[];
-  comments: IPostComment[];
   views: number;
 }
 
-const PostCommentSchema = new mongoose.Schema({
-  wallet: {
-    type: String,
-    required: true,
-    trim: true,
-    lowercase: true,
-  },
-  content: {
-    type: String,
-    required: true,
-    maxlength: 500,
-    trim: true,
-  },
-}, {
-  timestamps: true,
-});
 
 const PostLikeSchema = new mongoose.Schema({
   wallet: {
@@ -75,7 +55,6 @@ const PostSchema = new mongoose.Schema<IPost>({
     default: 'approved', // Auto-approve text posts, unlike videos
   },
   likes: [PostLikeSchema],
-  comments: [PostCommentSchema],
   views: {
     type: Number,
     default: 0,

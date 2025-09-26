@@ -3,6 +3,8 @@ import { getWalletFromRequest } from '@/lib/jwt';
 import dbConnect from '@/lib/mongodb';
 import User from '@/models/User';
 import Video from '@/models/Video';
+import Comment from '@/models/Comment';
+import mongoose from 'mongoose';
 
 
 export async function POST(request: NextRequest) {
@@ -130,14 +132,44 @@ export async function GET(request: NextRequest) {
     // Get user's uploaded videos from Video collection (has full data including likes, views, etc.)
     const videos = await Video.find({ uploader: wallet })
       .sort({ uploadedAt: -1 })
-      .select('publicId secureUrl title description status uploadedAt likes comments views')
+      .select('publicId secureUrl title description status uploadedAt likes views')
       .lean();
+
+    // Get comment counts for all videos
+    const videoIds = videos.map(video => new mongoose.Types.ObjectId(video._id.toString()));
+    
+    console.log('Debug - User videos API - Video IDs:', videoIds);
+    
+    const commentCounts = await Comment.aggregate([
+      {
+        $match: {
+          contentId: { $in: videoIds },
+          contentType: 'video'
+        }
+      },
+      {
+        $group: {
+          _id: '$contentId',
+          count: { $sum: 1 }
+        }
+      }
+    ]);
+
+    console.log('Debug - User videos API - Comment counts:', commentCounts);
+
+    // Create a map of video ID to comment count
+    const commentCountMap = commentCounts.reduce((acc, item) => {
+      acc[item._id.toString()] = item.count;
+      return acc;
+    }, {} as Record<string, number>);
+
+    console.log('Debug - User videos API - Comment count map:', commentCountMap);
 
     // Add computed fields
     const videosWithStats = videos.map(video => ({
       ...video,
       likesCount: video.likes?.length || 0,
-      commentsCount: video.comments?.length || 0,
+      commentsCount: commentCountMap[video._id.toString()] || 0,
       // Keep the full likes array for detailed display
       likes: video.likes || [],
     }));

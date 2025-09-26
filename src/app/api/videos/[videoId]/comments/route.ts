@@ -3,7 +3,9 @@ import { getWalletFromRequest } from '@/lib/jwt';
 import dbConnect from '@/lib/mongodb';
 import Video from '@/models/Video';
 import User from '@/models/User';
-import { Comment } from '@/types/interfaces';
+import Comment from '@/models/Comment';
+import { Comment as CommentType } from '@/types/interfaces';
+import mongoose from 'mongoose';
 
 export async function POST(
   request: NextRequest,
@@ -22,7 +24,7 @@ export async function POST(
 
     const { videoId } = await params;
     const body = await request.json();
-    const { content } = body;
+    const { content, parentCommentId } = body;
 
     // Validate comment content
     if (!content || typeof content !== 'string') {
@@ -49,21 +51,8 @@ export async function POST(
     // Connect to database
     await dbConnect();
 
-    // Find the video and add comment
-    const video = await Video.findByIdAndUpdate(
-      videoId,
-      {
-        $push: {
-          comments: {
-            wallet,
-            content: content.trim(),
-            createdAt: new Date()
-          }
-        }
-      },
-      { new: true }
-    );
-    
+    // Verify the video exists
+    const video = await Video.findById(videoId);
     if (!video) {
       return NextResponse.json(
         { error: 'Video not found' },
@@ -71,18 +60,34 @@ export async function POST(
       );
     }
 
-    // Get the newly added comment (last one in the array)
-    const newComment = video.comments[video.comments.length - 1];
+    // Create comment in separate Comment model
+    const commentData: any = {
+      wallet,
+      content: content.trim(),
+      contentId: new mongoose.Types.ObjectId(videoId),
+      contentType: 'video'
+    };
+
+    // Add parentCommentId if this is a reply
+    if (parentCommentId) {
+      commentData.parentCommentId = new mongoose.Types.ObjectId(parentCommentId);
+    }
+
+    const savedComment = new Comment(commentData);
+    await savedComment.save();
     
     return NextResponse.json({
       success: true,
       videoId,
-      totalComments: video.comments.length,
       comment: {
-        _id: newComment._id,
-        wallet: newComment.wallet,
-        content: newComment.content,
-        createdAt: newComment.createdAt
+        _id: savedComment._id,
+        wallet: savedComment.wallet,
+        content: savedComment.content,
+        createdAt: savedComment.createdAt,
+        parentCommentId: savedComment.parentCommentId,
+        likes: savedComment.likes || [],
+        contentId: savedComment.contentId,
+        contentType: savedComment.contentType
       },
       message: 'Comment added successfully',
     });
@@ -106,9 +111,8 @@ export async function GET(
     // Connect to database
     await dbConnect();
 
-    // Get video comments
-    const video = await Video.findById(videoId).select('comments');
-    
+    // Verify video exists
+    const video = await Video.findById(videoId);
     if (!video) {
       return NextResponse.json(
         { error: 'Video not found' },
@@ -116,36 +120,66 @@ export async function GET(
       );
     }
 
-    // Sort comments by creation date (oldest first)
-    const sortedComments = video.comments.sort((a: Comment, b: Comment) => 
-      new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
-    );
+    // Get comments from Comment model
+    const allComments = await Comment.find({
+      contentId: new mongoose.Types.ObjectId(videoId),
+      contentType: 'video'
+    }).sort({ createdAt: 1 });
 
-    // Get commenter profile info
-    const commentsWithProfiles = await Promise.all(
-      sortedComments.map(async (comment: Comment) => {
-        const commenter = await User.findOne(
-          { wallet: comment.wallet }, 
-          'wallet profilePicture'
-        ).lean();
+    // Separate top-level comments and replies
+    const topLevelComments = allComments.filter((comment: any) => !comment.parentCommentId);
+    const replies = allComments.filter((comment: any) => comment.parentCommentId);
+    
+
+    // Get commenter profile info for all comments
+    const getCommenterInfo = async (comment: any) => {
+      const commenter = await User.findOne(
+        { wallet: comment.wallet }, 
+        'wallet profilePicture'
+      ).lean();
+      
+      const commentObj = 'toObject' in comment && typeof comment.toObject === 'function' 
+        ? comment.toObject() 
+        : comment;
+      
+      return {
+        ...commentObj,
+        commenterInfo: commenter || { wallet: comment.wallet, profilePicture: null },
+      };
+    };
+
+    // Build threaded structure
+    const commentsWithReplies = await Promise.all(
+      topLevelComments.map(async (comment: any) => {
+        const commentWithProfile = await getCommenterInfo(comment);
         
-        // Convert Mongoose document to plain object
-        const commentObj = 'toObject' in comment && typeof comment.toObject === 'function' 
-          ? comment.toObject() 
-          : comment;
+        // Find replies for this comment
+        const commentReplies = replies.filter((reply: any) => {
+          if (!reply.parentCommentId || !comment._id) return false;
+          // Handle both ObjectId and string comparisons
+          const replyParentId = reply.parentCommentId.toString();
+          const commentId = comment._id.toString();
+          return replyParentId === commentId;
+        });
+        
+        // Get profile info for replies
+        const repliesWithProfiles = await Promise.all(
+          commentReplies.map((reply: any) => getCommenterInfo(reply))
+        );
         
         return {
-          ...commentObj,
-          commenterInfo: commenter || { wallet: comment.wallet, profilePicture: null },
+          ...commentWithProfile,
+          replies: repliesWithProfiles
         };
       })
     );
 
+    
     return NextResponse.json({
       success: true,
       videoId,
-      comments: commentsWithProfiles,
-      totalComments: video.comments.length,
+      comments: commentsWithReplies,
+      totalComments: topLevelComments.length,
     });
 
   } catch (error) {

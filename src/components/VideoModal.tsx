@@ -184,7 +184,7 @@ const VideoModal: React.FC<VideoModalProps> = ({
               contentId={video._id!}
               apiEndpoint="/api/videos"
               placeholder="Add a comment..."
-              maxHeight="400px"
+              maxHeight="360px"
               className="flex-1"
             />
           )}

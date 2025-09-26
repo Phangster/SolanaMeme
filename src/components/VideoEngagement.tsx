@@ -182,11 +182,9 @@ export default function VideoEngagement({
             className="text-gray-400 hover:text-blue-400 transition-colors flex items-center gap-2"
           >
             <ChatBubbleLeftIcon className={currentSize.button} />
-            {commentsCount > 0 && (
-              <span className={`font-pixel ${currentSize.text} ml-1`}>
-                {commentsCount}
-              </span>
-            )}
+            <span className={`font-pixel ${currentSize.text} ml-1`}>
+              {commentsCount}
+            </span>
           </button>
         )}
 

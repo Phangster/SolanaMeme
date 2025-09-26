@@ -3,6 +3,8 @@ import { getWalletFromRequest } from '@/lib/jwt';
 import dbConnect from '@/lib/mongodb';
 import Post from '@/models/Post';
 import User from '@/models/User';
+import Comment from '@/models/Comment';
+import mongoose from 'mongoose';
 
 // GET /api/posts - Fetch posts for feed
 export async function GET(request: NextRequest) {
@@ -21,6 +23,29 @@ export async function GET(request: NextRequest) {
       .limit(Math.min(limit, 50)) // Cap at 50 posts per request
       .lean();
 
+    // Get comment counts for all posts
+    const postIds = posts.map(post => new mongoose.Types.ObjectId(post._id));
+    const commentCounts = await Comment.aggregate([
+      {
+        $match: {
+          contentId: { $in: postIds },
+          contentType: 'post'
+        }
+      },
+      {
+        $group: {
+          _id: '$contentId',
+          count: { $sum: 1 }
+        }
+      }
+    ]);
+
+    // Create a map of post ID to comment count
+    const commentCountMap = commentCounts.reduce((acc, item) => {
+      acc[item._id.toString()] = item.count;
+      return acc;
+    }, {} as Record<string, number>);
+
     // Get author profile info for each post
     const postsWithAuthors = await Promise.all(
       posts.map(async (post) => {
@@ -29,7 +54,7 @@ export async function GET(request: NextRequest) {
           ...post,
           authorInfo: author || { wallet: post.author, profilePicture: null },
           likesCount: post.likes?.length || 0,
-          commentsCount: post.comments?.length || 0,
+          commentsCount: commentCountMap[post._id.toString()] || 0,
         };
       })
     );

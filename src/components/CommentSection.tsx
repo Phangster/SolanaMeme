@@ -1,6 +1,8 @@
 'use client';
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import Image from 'next/image';
+import { HeartIcon } from '@heroicons/react/24/solid';
+import { HeartIcon as HeartOutlineIcon } from '@heroicons/react/24/outline';
 import { useWalletAuth } from '@/hooks/useWalletAuth';
 import { truncateWallet, formatTimeAgo } from '@/lib/utils';
 import { Comment, CommentSectionProps } from '@/types/interfaces';
@@ -16,9 +18,14 @@ const CommentSection: React.FC<CommentSectionProps> = ({
   const { user, token, isAuthenticated } = useWalletAuth();
   
   const [comments, setComments] = useState<Comment[]>([]);
+  const [parentCommentCount, setParentCommentCount] = useState(0);
   const [newComment, setNewComment] = useState('');
   const [isLoadingComments, setIsLoadingComments] = useState(false);
   const [isSubmittingComment, setIsSubmittingComment] = useState(false);
+  const [replyingTo, setReplyingTo] = useState<string | null>(null);
+  const [replyingToWallet, setReplyingToWallet] = useState<string>('');
+  const [replyText, setReplyText] = useState('');
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
 
 
   // Load comments
@@ -31,19 +38,22 @@ const CommentSection: React.FC<CommentSectionProps> = ({
       if (response.ok) {
         const data = await response.json();
         setComments(data.comments || []);
+        setParentCommentCount(data.totalComments || 0);
       } else {
         console.error('Failed to load comments');
         setComments([]);
+        setParentCommentCount(0);
       }
     } catch (error) {
       console.error('Error loading comments:', error);
       setComments([]);
+      setParentCommentCount(0);
     } finally {
       setIsLoadingComments(false);
     }
   }, [contentId, apiEndpoint]);
 
-  // Submit new comment
+  // Submit new comment or reply
   const handleSubmitComment = async (e: React.FormEvent) => {
     e.preventDefault();
     
@@ -51,21 +61,43 @@ const CommentSection: React.FC<CommentSectionProps> = ({
       return;
     }
 
+    // Extract actual comment content (remove @user mention if replying)
+    let commentContent = newComment.trim();
+    if (replyingTo && replyingToWallet) {
+      // Remove the @user mention from the beginning of the content
+      const mentionPattern = new RegExp(`^@${truncateWallet(replyingToWallet)}\\s+`, 'i');
+      commentContent = commentContent.replace(mentionPattern, '').trim();
+    }
+
+    // Don't submit if content is empty after removing @mention
+    if (!commentContent) {
+      return;
+    }
+
     setIsSubmittingComment(true);
     try {
+
+      const requestBody: any = {
+        content: commentContent,
+      };
+
+      // If replying to a comment, include parentCommentId
+      if (replyingTo) {
+        requestBody.parentCommentId = replyingTo;
+      }
+
       const response = await fetch(`${apiEndpoint}/${contentId}/comments`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`,
         },
-        body: JSON.stringify({
-          content: newComment.trim(),
-        }),
+        body: JSON.stringify(requestBody),
       });
 
       if (response.ok) {
         setNewComment('');
+        setReplyingTo(null);
         // Reload comments to show the new one
         await loadComments();
       } else {
@@ -76,6 +108,102 @@ const CommentSection: React.FC<CommentSectionProps> = ({
       console.error('Error submitting comment:', error);
     } finally {
       setIsSubmittingComment(false);
+    }
+  };
+
+  // Handle reply button click - Instagram style
+  const handleReplyClick = (commentId: string, commenterWallet: string) => {
+    setReplyingTo(commentId);
+    setReplyingToWallet(commenterWallet);
+    setReplyText('');
+    setNewComment(`@${truncateWallet(commenterWallet)} `);
+    // Focus the main comment input
+    setTimeout(() => {
+      if (textareaRef.current) {
+        textareaRef.current.focus();
+        textareaRef.current.setSelectionRange(textareaRef.current.value.length, textareaRef.current.value.length);
+      }
+    }, 100);
+  };
+
+  // Remove @mention pill
+  const removeMention = () => {
+    setReplyingTo(null);
+    setReplyingToWallet('');
+    setReplyText('');
+    setNewComment('');
+    if (textareaRef.current) {
+      textareaRef.current.focus();
+    }
+  };
+
+  // Handle keydown events for @mention deletion
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    if (e.key === 'Backspace' && replyingTo) {
+      const textarea = e.target as HTMLTextAreaElement;
+      const cursorPosition = textarea.selectionStart;
+      const text = textarea.value;
+      
+      // Check if cursor is at the beginning and there's no text
+      if (cursorPosition === 0 && text.length === 0) {
+        e.preventDefault();
+        removeMention();
+      }
+    }
+  };
+
+  // Handle comment like/unlike
+  const handleCommentLike = async (commentId: string, isLiked: boolean) => {
+    if (!isAuthenticated || !token) {
+      alert('Please connect your wallet to like comments');
+      return;
+    }
+
+    try {
+      const method = isLiked ? 'DELETE' : 'POST';
+      const response = await fetch(`${apiEndpoint}/${contentId}/comments/${commentId}/like`, {
+        method,
+        headers: {
+          'Authorization': `Bearer ${token}`,
+        },
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        // Update the comment in the state
+        setComments(prev => prev.map(comment => {
+          if (comment._id === commentId) {
+            return {
+              ...comment,
+              likes: isLiked 
+                ? comment.likes?.filter(like => like.wallet !== user?.wallet) || []
+                : [...(comment.likes || []), { wallet: user?.wallet || '', createdAt: new Date().toISOString() }]
+            };
+          }
+          // Update replies as well
+          if (comment.replies) {
+            return {
+              ...comment,
+              replies: comment.replies.map(reply => {
+                if (reply._id === commentId) {
+                  return {
+                    ...reply,
+                    likes: isLiked 
+                      ? reply.likes?.filter(like => like.wallet !== user?.wallet) || []
+                      : [...(reply.likes || []), { wallet: user?.wallet || '', createdAt: new Date().toISOString() }]
+                  };
+                }
+                return reply;
+              })
+            };
+          }
+          return comment;
+        }));
+      } else {
+        console.error('Failed to toggle comment like');
+      }
+    } catch (error) {
+      console.error('Error toggling comment like:', error);
     }
   };
 
@@ -114,7 +242,9 @@ const CommentSection: React.FC<CommentSectionProps> = ({
       {/* Header */}
       {showHeader && (
         <div className="p-2 border-b border-gray-700 flex-shrink-0">
-          <h4 className="text-white font-pixel font-bold">Comments</h4>
+          <h4 className="text-white font-pixel font-bold">
+            Comments {parentCommentCount > 0 && `(${parentCommentCount})`}
+          </h4>
         </div>
       )}
 
@@ -146,39 +276,157 @@ const CommentSection: React.FC<CommentSectionProps> = ({
         ) : (
           <div className="p-4 space-y-3">
             {comments.map((comment, index) => (
-              <div key={comment._id || `comment-${index}`} className="flex gap-3">
-                <div className="w-6 h-6 rounded-full overflow-hidden border border-gray-600 flex-shrink-0">
-                  {comment.commenterInfo?.profilePicture?.secureUrl ? (
-                    <Image
-                      src={comment.commenterInfo.profilePicture.secureUrl}
-                      alt="Commenter"
-                      width={24}
-                      height={24}
-                      className="w-full h-full object-cover"
-                    />
-                  ) : (
-                    <Image
-                      src="/default-avatar.png"
-                      alt="Commenter"
-                      width={24}
-                      height={24}
-                      className="w-full h-full object-cover"
-                    />
-                  )}
-                </div>
-                <div className="flex-1">
-                  <div className="flex items-center gap-2 mb-1">
-                    <span className="text-white font-pixel text-xs font-bold">
-                      {truncateWallet(comment.wallet)}
-                    </span>
-                    <span className="text-gray-500 text-xs font-pixel">
-                      {formatTimeAgo(comment.createdAt)}
-                    </span>
+              <div key={comment._id || `comment-${index}`} className="space-y-2">
+                {/* Main Comment */}
+                <div className="flex gap-3">
+                  <div className="w-6 h-6 rounded-full overflow-hidden border border-gray-600 flex-shrink-0">
+                    {comment.commenterInfo?.profilePicture?.secureUrl ? (
+                      <Image
+                        src={comment.commenterInfo.profilePicture.secureUrl}
+                        alt="Commenter"
+                        width={24}
+                        height={24}
+                        className="w-full h-full object-cover"
+                      />
+                    ) : (
+                      <Image
+                        src="/default-avatar.png"
+                        alt="Commenter"
+                        width={24}
+                        height={24}
+                        className="w-full h-full object-cover"
+                      />
+                    )}
                   </div>
-                  <p className="text-gray-300 text-xs font-pixel leading-relaxed">
-                    {comment.content}
-                  </p>
+                  <div className="flex-1">
+                    <div className="flex items-center gap-2 mb-1">
+                      <span className="text-white font-pixel text-xs font-bold">
+                        {truncateWallet(comment.wallet)}
+                      </span>
+                      <span className="text-gray-500 text-xs font-pixel">
+                        {formatTimeAgo(comment.createdAt)}
+                      </span>
+                    </div>
+                    <p className="text-gray-300 text-xs font-pixel leading-relaxed">
+                      {comment.content}
+                    </p>
+                    
+                    {/* Instagram-style action buttons */}
+                    <div className="flex items-center gap-4 mt-2">
+                      {/* Reply Button */}
+                      {isAuthenticated && (
+                        <button
+                          onClick={() => handleReplyClick(comment._id, comment.wallet)}
+                          className="text-gray-500 hover:text-gray-300 font-pixel text-xs transition-colors"
+                        >
+                          Reply
+                        </button>
+                      )}
+
+                      {/* Like Button */}
+                      {isAuthenticated && (
+                        <button
+                          onClick={() => {
+                            const isLiked = comment.likes?.some(like => like.wallet === user?.wallet) || false;
+                            handleCommentLike(comment._id, isLiked);
+                          }}
+                          className="flex items-center gap-1 text-gray-500 hover:text-red-500 transition-colors"
+                        >
+                          {comment.likes?.some(like => like.wallet === user?.wallet) ? (
+                            <HeartIcon className="w-4 h-4 text-red-500" />
+                          ) : (
+                            <HeartOutlineIcon className="w-4 h-4" />
+                          )}
+                          {comment.likes && comment.likes.length > 0 && (
+                            <span className="text-xs font-pixel">
+                              {comment.likes.length}
+                            </span>
+                          )}
+                        </button>
+                      )}
+                      
+                    </div>
+                  </div>
                 </div>
+
+                {/* Replies Section */}
+                {comment.replies && comment.replies.length > 0 && (
+                  <div className="ml-9 space-y-2">
+                    {comment.replies.map((reply, replyIndex) => (
+                      <div key={reply._id || `reply-${replyIndex}`} className="flex gap-3">
+                        <div className="w-5 h-5 rounded-full overflow-hidden border border-gray-600 flex-shrink-0">
+                          {reply.commenterInfo?.profilePicture?.secureUrl ? (
+                            <Image
+                              src={reply.commenterInfo.profilePicture.secureUrl}
+                              alt="Reply Author"
+                              width={20}
+                              height={20}
+                              className="w-full h-full object-cover"
+                            />
+                          ) : (
+                            <Image
+                              src="/default-avatar.png"
+                              alt="Reply Author"
+                              width={20}
+                              height={20}
+                              className="w-full h-full object-cover"
+                            />
+                          )}
+                        </div>
+                        <div className="flex-1">
+                          <div className="flex items-center gap-2 mb-1">
+                            <span className="text-white font-pixel text-xs font-bold">
+                              {truncateWallet(reply.wallet)}
+                            </span>
+                            <span className="text-gray-500 text-xs font-pixel">
+                              {formatTimeAgo(reply.createdAt)}
+                            </span>
+                          </div>
+                          <p className="text-gray-300 text-xs font-pixel leading-relaxed">
+                            {reply.content}
+                          </p>
+                          
+                          {/* Instagram-style action buttons for replies */}
+                          <div className="flex items-center gap-4 mt-1">
+                            {/* Reply Button for Reply */}
+                            {isAuthenticated && (
+                              <button
+                                onClick={() => handleReplyClick(comment._id, reply.wallet)}
+                                className="text-gray-500 hover:text-gray-300 font-pixel text-xs transition-colors"
+                              >
+                                Reply
+                              </button>
+                            )}
+
+                            {/* Like Button for Reply */}
+                            {isAuthenticated && (
+                              <button
+                                onClick={() => {
+                                  const isLiked = reply.likes?.some(like => like.wallet === user?.wallet) || false;
+                                  handleCommentLike(reply._id, isLiked);
+                                }}
+                                className="flex items-center gap-1 text-gray-500 hover:text-red-500 transition-colors"
+                              >
+                                {reply.likes?.some(like => like.wallet === user?.wallet) ? (
+                                  <HeartIcon className="size-4 text-red-500" />
+                                ) : (
+                                  <HeartOutlineIcon className="size-4" />
+                                )}
+                                {reply.likes && reply.likes.length > 0 && (
+                                  <span className="text-xs font-pixel">
+                                    {reply.likes.length}
+                                  </span>
+                                )}
+                              </button>
+                            )}
+                            
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+
               </div>
             ))}
           </div>
@@ -208,33 +456,72 @@ const CommentSection: React.FC<CommentSectionProps> = ({
             )}
           </div>
           
-          <div className="flex-1 flex gap-2 h-[38px]">
-            <textarea
-                placeholder={placeholder}
-                value={newComment}
-                onChange={(e) => setNewComment(e.target.value)}
-                className="w-full bg-gray-800 text-white font-pixel text-xs px-3 py-2 rounded-lg border border-gray-600 focus:border-yellow-400 focus:outline-none resize-none overflow-y-auto"
+          <div className="flex-1 flex gap-2 min-h-[38px]">
+            {/* Pill-style input container */}
+            <div className="w-full bg-gray-800 rounded-lg border border-gray-600 focus-within:border-yellow-400 p-2 flex flex-wrap gap-2 items-center min-h-[34px]">
+              {/* @Mention Pill */}
+              {replyingTo && (
+                <div className="inline-flex items-center gap-1 bg-yellow-400 text-black px-2 py-1 rounded-full text-xs font-pixel font-bold">
+                  <span>@{truncateWallet(replyingToWallet)}</span>
+                  <button
+                    type="button"
+                    onClick={removeMention}
+                    className="hover:bg-yellow-500 rounded-full p-0.5 transition-colors"
+                  >
+                    <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                  </button>
+                </div>
+              )}
+              
+              {/* Text input */}
+              <textarea
+                ref={textareaRef}
+                placeholder={replyingTo ? "Add a reply..." : placeholder}
+                value={replyingTo ? replyText : newComment}
+                onChange={(e) => {
+                  const value = e.target.value;
+                  if (replyingTo) {
+                    setReplyText(value);
+                    setNewComment(`@${truncateWallet(replyingToWallet)} ${value}`);
+                  } else {
+                    setNewComment(value);
+                  }
+                }}
+                onKeyDown={handleKeyDown}
+                className="flex-1 bg-transparent text-white font-pixel text-xs outline-none resize-none overflow-y-auto min-h-[20px] max-h-[100px]"
                 disabled={isSubmittingComment}
                 maxLength={500}
                 rows={1}
                 style={{
-                height: 'auto',
-                minHeight: '38px'
+                  height: 'auto',
+                  minHeight: '20px'
                 }}
                 onInput={(e) => {
-                const target = e.target as HTMLTextAreaElement;
-                target.style.height = 'auto';
-                target.style.height = `${Math.min(target.scrollHeight, 120)}px`;
+                  const target = e.target as HTMLTextAreaElement;
+                  target.style.height = 'auto';
+                  target.style.height = `${Math.min(target.scrollHeight, 100)}px`;
                 }}
-            />
+              />
+            </div>
             
-            {newComment && newComment.trim().length > 0 && (
+{(() => {
+              // Check if we have valid content after cleaning
+              let hasValidContent = newComment.trim().length > 0;
+              if (replyingTo && replyingToWallet) {
+                const mentionPattern = new RegExp(`^@${truncateWallet(replyingToWallet)}\\s+`, 'i');
+                const cleanedContent = newComment.trim().replace(mentionPattern, '').trim();
+                hasValidContent = cleanedContent.length > 0;
+              }
+              return hasValidContent;
+            })() && (
               <button
                 type="submit"
                 disabled={isSubmittingComment}
-                className="px-4 py-2 text-yellow-400 hover:underline font-bold rounded-lg font-pixel text-xs transition-colors whitespace-nowrap flex-shrink-0 self-end"
+                className="px-4 py-2 text-yellow-400 hover:underline font-bold rounded-lg font-pixel text-xs transition-colors whitespace-nowrap flex-shrink-0"
               >
-                {isSubmittingComment ? '...' : 'Post'}
+                {isSubmittingComment ? '...' : replyingTo ? 'Reply' : 'Post'}
               </button>
             )}
           </div>

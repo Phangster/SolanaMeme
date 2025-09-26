@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import dbConnect from '@/lib/mongodb';
 import Video from '@/models/Video';
+import Comment from '@/models/Comment';
+import mongoose from 'mongoose';
 
 export async function GET(request: NextRequest) {
   try {
@@ -30,18 +32,47 @@ export async function GET(request: NextRequest) {
       .sort({ uploadedAt: -1 })
       .limit(limit)
       .skip((page - 1) * limit)
-      .select('uploader publicId secureUrl title description uploadedAt likes comments views')
+      .select('uploader publicId secureUrl title description uploadedAt likes views')
       .lean();
+
+    // Get comment counts for all videos
+    const videoIds = videos.map(video => new mongoose.Types.ObjectId(video._id.toString()));
+    
+    console.log('Debug - Main videos API - Video IDs:', videoIds);
+    console.log('Debug - Main videos API - Status filter:', status);
+    
+    const commentCounts = await Comment.aggregate([
+      {
+        $match: {
+          contentId: { $in: videoIds },
+          contentType: 'video'
+        }
+      },
+      {
+        $group: {
+          _id: '$contentId',
+          count: { $sum: 1 }
+        }
+      }
+    ]);
+
+    console.log('Debug - Main videos API - Comment counts:', commentCounts);
+
+    // Create a map of video ID to comment count
+    const commentCountMap = commentCounts.reduce((acc, item) => {
+      acc[item._id.toString()] = item.count;
+      return acc;
+    }, {} as Record<string, number>);
+
+    console.log('Debug - Main videos API - Comment count map:', commentCountMap);
 
     // Add computed fields
     const videosWithStats = videos.map(video => ({
       ...video,
       likesCount: video.likes?.length || 0,
-      commentsCount: video.comments?.length || 0,
+      commentsCount: commentCountMap[video._id.toString()] || 0,
       // Include likes array for modal functionality
       likes: video.likes || [],
-      // Don't send full comments array for performance
-      comments: undefined,
     }));
 
     const totalVideos = await Video.countDocuments(query);

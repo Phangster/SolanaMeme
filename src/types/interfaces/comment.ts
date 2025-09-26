@@ -1,10 +1,20 @@
 // Comment related interfaces
 
+export interface CommentLike {
+  wallet: string;
+  createdAt: string;
+}
+
 export interface Comment {
   _id: string;
   wallet: string;
   content: string;
   createdAt: string;
+  parentCommentId?: string; // For replies
+  replies?: Comment[]; // Nested replies
+  likes?: CommentLike[]; // Comment likes
+  contentId: string; // Reference to video or post
+  contentType: 'video' | 'post';
   commenterInfo?: {
     wallet: string;
     profilePicture?: {
@@ -15,6 +25,7 @@ export interface Comment {
 
 export interface CommentCreateRequest {
   content: string;
+  parentCommentId?: string; // For replies
 }
 
 export interface CommentResponse {

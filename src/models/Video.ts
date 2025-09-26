@@ -1,10 +1,7 @@
 import mongoose from 'mongoose';
 
-export interface IComment extends mongoose.Document {
-  wallet: string;
-  content: string;
-  createdAt: Date;
-}
+// Note: Comments are now stored in a separate Comment model
+// and referenced by ID for better performance and scalability
 
 export interface ILike extends mongoose.Document {
   wallet: string;
@@ -20,28 +17,11 @@ export interface IVideo extends mongoose.Document {
   status: 'pending' | 'approved' | 'rejected';
   uploadedAt: Date;
   likes: ILike[];
-  comments: IComment[];
   views: number;
   createdAt: Date;
   updatedAt: Date;
 }
 
-const CommentSchema = new mongoose.Schema({
-  wallet: {
-    type: String,
-    required: true,
-    trim: true,
-    lowercase: true,
-  },
-  content: {
-    type: String,
-    required: true,
-    maxlength: 500,
-    trim: true,
-  },
-}, {
-  timestamps: true,
-});
 
 const LikeSchema = new mongoose.Schema({
   wallet: {
@@ -94,7 +74,6 @@ const VideoSchema = new mongoose.Schema<IVideo>({
     default: Date.now,
   },
   likes: [LikeSchema],
-  comments: [CommentSchema],
   views: {
     type: Number,
     default: 0,
