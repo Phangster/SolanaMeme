@@ -1,7 +1,7 @@
 'use client';
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import Image from 'next/image';
-import { HeartIcon } from '@heroicons/react/24/solid';
+import { ArrowUpIcon, HeartIcon } from '@heroicons/react/24/solid';
 import { HeartIcon as HeartOutlineIcon } from '@heroicons/react/24/outline';
 import { useWalletAuth } from '@/hooks/useWalletAuth';
 import { truncateWallet, formatTimeAgo } from '@/lib/utils';
@@ -64,8 +64,9 @@ const CommentSection: React.FC<CommentSectionProps> = ({
     // Extract actual comment content (remove @user mention if replying)
     let commentContent = newComment.trim();
     if (replyingTo && replyingToWallet) {
-      // Remove the @user mention from the beginning of the content
-      const mentionPattern = new RegExp(`^@${truncateWallet(replyingToWallet)}\\s+`, 'i');
+      // Remove the @user mention from the beginning of the content (using first 4 chars)
+      const shortWallet = replyingToWallet.substring(0, 4);
+      const mentionPattern = new RegExp(`^@${shortWallet}`, 'i');
       commentContent = commentContent.replace(mentionPattern, '').trim();
     }
 
@@ -116,7 +117,9 @@ const CommentSection: React.FC<CommentSectionProps> = ({
     setReplyingTo(commentId);
     setReplyingToWallet(commenterWallet);
     setReplyText('');
-    setNewComment(`@${truncateWallet(commenterWallet)} `);
+    // Use only first 4 characters for reply mention
+    const shortWallet = commenterWallet.substring(0, 4);
+    setNewComment(`@${shortWallet}`);
     // Focus the main comment input
     setTimeout(() => {
       if (textareaRef.current) {
@@ -137,20 +140,6 @@ const CommentSection: React.FC<CommentSectionProps> = ({
     }
   };
 
-  // Handle keydown events for @mention deletion
-  const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
-    if (e.key === 'Backspace' && replyingTo) {
-      const textarea = e.target as HTMLTextAreaElement;
-      const cursorPosition = textarea.selectionStart;
-      const text = textarea.value;
-      
-      // Check if cursor is at the beginning and there's no text
-      if (cursorPosition === 0 && text.length === 0) {
-        e.preventDefault();
-        removeMention();
-      }
-    }
-  };
 
   // Handle comment like/unlike
   const handleCommentLike = async (commentId: string, isLiked: boolean) => {
@@ -455,48 +444,47 @@ const CommentSection: React.FC<CommentSectionProps> = ({
             )}
           </div>
           
-          <div className="flex-1 flex gap-2 min-h-[38px]">
-            {/* Pill-style input container */}
-            <div className="w-full bg-gray-800 rounded-lg border border-gray-600 focus-within:border-yellow-400 p-2 flex flex-wrap gap-2 items-center min-h-[34px]">
-              {/* @Mention Pill */}
-              {replyingTo && (
-                <div className="inline-flex items-center gap-1 bg-yellow-400 text-black px-2 py-1 rounded-full text-xs font-pixel font-bold">
-                  <span>@{truncateWallet(replyingToWallet)}</span>
-                  <button
-                    type="button"
-                    onClick={removeMention}
-                    className="hover:bg-yellow-500 rounded-full p-0.5 transition-colors"
-                  >
-                    <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                    </svg>
-                  </button>
-                </div>
-              )}
-              
-              {/* Text input */}
+          <div className="flex-1 flex gap-2 items-center">
+            {/* Simple text input with inline mention */}
+            <div className="w-full bg-gray-800 rounded-lg border border-gray-600 focus-within:border-yellow-400 p-2">
               <textarea
                 ref={textareaRef}
-                placeholder={replyingTo ? "Add a reply..." : placeholder}
-                value={replyingTo ? replyText : newComment}
+                placeholder={replyingTo ? `@${replyingToWallet.substring(0, 4)} Add a reply...` : placeholder}
+                value={replyingTo ? `@${replyingToWallet.substring(0, 4)}${replyText}` : newComment}
                 onChange={(e) => {
                   const value = e.target.value;
                   if (replyingTo) {
-                    setReplyText(value);
-                    setNewComment(`@${truncateWallet(replyingToWallet)} ${value}`);
+                    // Remove the @user part from the value to get just the reply text
+                    const shortWallet = replyingToWallet.substring(0, 4);
+                    const mentionText = `@${shortWallet}`;
+                    const replyText = value.startsWith(mentionText) 
+                      ? value.substring(mentionText.length)
+                      : value;
+                    setReplyText(replyText);
+                    setNewComment(value);
                   } else {
                     setNewComment(value);
                   }
                 }}
-                onKeyDown={handleKeyDown}
-                className="flex-1 bg-transparent text-white font-pixel text-xs outline-none resize-none overflow-y-auto min-h-[20px] max-h-[100px]"
+                onKeyDown={(e) => {
+                  // Handle backspace to remove mention
+                  if (e.key === 'Backspace' && replyingTo) {
+                    const target = e.target as HTMLTextAreaElement;
+                    const value = target.value;
+                    const shortWallet = replyingToWallet.substring(0, 4);
+                    const mentionText = `@${shortWallet}`;
+                    
+                    // If cursor is at the end of the mention, remove the entire mention
+                    if (value === mentionText) {
+                      e.preventDefault();
+                      removeMention();
+                    }
+                  }
+                }}
+                className="w-full bg-transparent text-white font-pixel text-xs outline-none resize-none overflow-y-auto max-h-[100px]"
                 disabled={isSubmittingComment}
                 maxLength={500}
                 rows={1}
-                style={{
-                  height: 'auto',
-                  minHeight: '20px'
-                }}
                 onInput={(e) => {
                   const target = e.target as HTMLTextAreaElement;
                   target.style.height = 'auto';
@@ -504,12 +492,13 @@ const CommentSection: React.FC<CommentSectionProps> = ({
                 }}
               />
             </div>
-            
-{(() => {
+
+            {(() => {
               // Check if we have valid content after cleaning
               let hasValidContent = newComment.trim().length > 0;
               if (replyingTo && replyingToWallet) {
-                const mentionPattern = new RegExp(`^@${truncateWallet(replyingToWallet)}\\s+`, 'i');
+                const shortWallet = replyingToWallet.substring(0, 4);
+                const mentionPattern = new RegExp(`^@${shortWallet}`, 'i');
                 const cleanedContent = newComment.trim().replace(mentionPattern, '').trim();
                 hasValidContent = cleanedContent.length > 0;
               }
@@ -518,9 +507,9 @@ const CommentSection: React.FC<CommentSectionProps> = ({
               <button
                 type="submit"
                 disabled={isSubmittingComment}
-                className="px-4 py-2 text-yellow-400 hover:underline font-bold rounded-lg font-pixel text-xs transition-colors whitespace-nowrap flex-shrink-0"
+                className="size-8 flex items-center justify-center bg-yellow-400 rounded-full text-gray-800 flex-shrink-0"
               >
-                {isSubmittingComment ? '...' : replyingTo ? 'Reply' : 'Post'}
+                <ArrowUpIcon className="size-4" />
               </button>
             )}
           </div>
