@@ -56,23 +56,31 @@ body {
   overscroll-behavior: none;
 }
 
-/* Custom scrollbar
-::-webkit-scrollbar {
-  width: 8px;
+/* Custom scrollbar for comments */
+.comments-list::-webkit-scrollbar {
+  width: 6px;
 }
 
-::-webkit-scrollbar-track {
+.comments-list::-webkit-scrollbar-track {
   background: #1f2937;
+  border-radius: 3px;
 }
 
-::-webkit-scrollbar-thumb {
+.comments-list::-webkit-scrollbar-thumb {
   background: #fbbf24;
-  border-radius: 4px;
+  border-radius: 3px;
 }
 
-::-webkit-scrollbar-thumb:hover {
+.comments-list::-webkit-scrollbar-thumb:hover {
   background: #facc15;
-} */
+}
+
+/* Ensure comments list is scrollable */
+.comments-list {
+  overflow-y: auto !important;
+  -webkit-overflow-scrolling: touch;
+  scroll-behavior: smooth;
+}
 
 /* Hide scrollbar for Chrome, Safari, and Opera */
 ::-webkit-scrollbar {

@@ -51,7 +51,7 @@ export default function HomePage() {
         </div>
 
         {/* Leaderboard - Sticky to bottom, separate from main content */}
-        <div className={`sticky bottom-0 z-10 ${isMobile ? 'pb-20' : 'pb-0'}`}>
+        <div className="sticky bottom-0 z-10 pb-0 ">
           <Leaderboard 
             leaderboard={leaderboard}
             isLoading={leaderboardLoading}

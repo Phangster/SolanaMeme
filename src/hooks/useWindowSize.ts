@@ -4,6 +4,7 @@ interface WindowSize {
   width: number;
   height: number;
   isMobile: boolean;
+  isTablet: boolean;
   isDesktop: boolean;
 }
 
@@ -12,6 +13,7 @@ export function useWindowSize(): WindowSize {
     width: 0,
     height: 0,
     isMobile: false,
+    isTablet: false,
     isDesktop: false,
   });
 
@@ -23,12 +25,14 @@ export function useWindowSize(): WindowSize {
       const width = window.innerWidth;
       const height = window.innerHeight;
       const isMobile = width < 768;
-      const isDesktop = width >= 768;
+      const isTablet = width >= 768 && width < 1280;
+      const isDesktop = width >= 1280;
 
       setWindowSize({
         width,
         height,
         isMobile,
+        isTablet,
         isDesktop,
       });
     }

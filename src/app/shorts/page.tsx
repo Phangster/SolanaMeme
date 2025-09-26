@@ -40,6 +40,7 @@ export default function ShortsPage() {
   
   // Video modal state
   const [selectedVideo, setSelectedVideo] = useState<CommunityVideo | null>(null);
+  const [currentVideoIndex, setCurrentVideoIndex] = useState<number>(0);
 
   const featuredVideo = {
     title: "A Crypto Investor's Reality Check",
@@ -55,6 +56,13 @@ export default function ShortsPage() {
   }, [communityVideos.length]);
 
   const handleVideoClick = (video: CommunityVideo) => {
+    const index = communityVideos.findIndex(v => v._id === video._id);
+    setCurrentVideoIndex(index);
+    setSelectedVideo(video);
+  };
+
+  const handleVideoChange = (video: any, index: number) => {
+    setCurrentVideoIndex(index);
     setSelectedVideo(video);
   };
 
@@ -120,7 +128,7 @@ export default function ShortsPage() {
                 <p className="text-gray-400 font-pixel">Be the first to upload a video!</p>
               </div>
             ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              <div className="grid grid-cols-2 md:grid-cols-3">
                 {communityVideos.map((video, index) => (
                   <VideoCard
                     key={video._id}
@@ -205,6 +213,9 @@ export default function ShortsPage() {
           isAuthenticated={isAuthenticated}
           currentUserWallet={user?.wallet}
           showTitle={true}
+          videos={communityVideos}
+          currentVideoIndex={currentVideoIndex}
+          onVideoChange={handleVideoChange}
         />
       )}
     </Layout>

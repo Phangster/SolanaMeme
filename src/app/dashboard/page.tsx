@@ -51,11 +51,15 @@ export default function DashboardPage() {
   // Use the video fetching hook
   const { videos: userVideos, loading: videosLoading, refetch: refetchVideos } = useUserVideos();
   const [selectedVideo, setSelectedVideo] = useState<UserVideo | null>(null);
+  const [currentVideoIndex, setCurrentVideoIndex] = useState<number>(0);
   const [showUploadModal, setShowUploadModal] = useState(false);
   const [showProfileModal, setShowProfileModal] = useState(false);
   const [activeTab, setActiveTab] = useState<'videos' | 'posts' | 'activity'>('videos');
-  
-  
+
+  const handleVideoChange = (video: any, index: number) => {
+    setCurrentVideoIndex(index);
+    setSelectedVideo(video);
+  };
   
   
 
@@ -269,7 +273,11 @@ export default function DashboardPage() {
                 <VideoGrid
                   videos={userVideos}
                   loading={videosLoading}
-                  onVideoClick={setSelectedVideo}
+                  onVideoClick={(video) => {
+                    const index = userVideos.findIndex(v => v._id === video._id);
+                    setCurrentVideoIndex(index);
+                    setSelectedVideo(video);
+                  }}
                   onAddVideoClick={() => setShowUploadModal(true)}
                 />
               </TabContent>
@@ -311,6 +319,9 @@ export default function DashboardPage() {
         isAuthenticated={isAuthenticated}
         currentUserWallet={user?.wallet}
         showTitle={false}
+        videos={userVideos}
+        currentVideoIndex={currentVideoIndex}
+        onVideoChange={handleVideoChange}
       />
     )}
 

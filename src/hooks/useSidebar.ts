@@ -14,7 +14,7 @@ interface UseSidebarReturn {
 export function useSidebar(): UseSidebarReturn {
   const [isSidebarVisible, setIsSidebarVisible] = useState(false);
   const [isMounted, setIsMounted] = useState(false);
-  const { isMobile, isDesktop } = useWindowSize();
+  const { isMobile, isTablet, isDesktop } = useWindowSize();
   const contentRef = useRef<HTMLDivElement>(null);
   const router = useRouter();
 
@@ -26,15 +26,15 @@ export function useSidebar(): UseSidebarReturn {
   // Force sidebar visibility based on screen size
   useEffect(() => {
     if (isMounted) {
-      if (isDesktop) {
-        // Force sidebar open on desktop
+      if (isDesktop || isTablet) {
+        // Force sidebar open on desktop and tablet
         setIsSidebarVisible(true);
       } else if (isMobile) {
         // Auto close sidebar on mobile
         setIsSidebarVisible(false);
       }
     }
-  }, [isMounted, isMobile, isDesktop]);
+  }, [isMounted, isMobile, isTablet, isDesktop]);
 
   const toggleSidebar = useCallback(() => {
     // Only allow toggle on mobile

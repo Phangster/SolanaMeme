@@ -43,7 +43,7 @@ const VideoCard: React.FC<VideoCardProps> = ({
 }) => {
   return (
         <div
-          className={`group relative aspect-[3/4] bg-black rounded-lg overflow-hidden border border-gray-700 hover:border-yellow-400 transition-all duration-300 cursor-pointer ${className}`}
+          className={`group relative aspect-[3/4] bg-black overflow-hidden border border-gray-700 hover:border-yellow-400 transition-all duration-300 cursor-pointer ${className}`}
           onClick={() => onVideoClick(video)}
         >
       {/* Video Thumbnail */}
@@ -82,12 +82,12 @@ const VideoCard: React.FC<VideoCardProps> = ({
             e.stopPropagation();
             onMuteToggle();
           }}
-          className="absolute top-2 right-2 bg-black/70 hover:bg-black/90 text-white px-3 py-1 rounded-lg flex items-center gap-1 transition-colors text-xs z-10"
+          className="absolute top-2 right-2 bg-black/70 hover:bg-black/90 text-white p-1 rounded-lg flex items-center gap-1 transition-colors text-xs z-10"
         >
             {isMuted ? (
-                <SpeakerXMarkIcon className="size-8" />
+                <SpeakerXMarkIcon className="size-4" />
             ) : (
-                <SpeakerWaveIcon className="size-8" />
+                <SpeakerWaveIcon className="size-4" />
             )}
         </button>
       )}

@@ -1,7 +1,8 @@
 'use client';
 import React, { useState, useEffect, useCallback } from 'react';
-import { EyeIcon, HeartIcon } from '@heroicons/react/24/solid';
+import { EyeIcon, HeartIcon, ChatBubbleLeftIcon } from '@heroicons/react/24/solid';
 import { truncateWallet } from '@/lib/utils';
+import { useWindowSize } from '@/hooks/useWindowSize';
 
 interface VideoEngagementProps {
   videoId: string;
@@ -18,6 +19,8 @@ interface VideoEngagementProps {
   showLatestLiker?: boolean;
   showViewCount?: boolean;
   size?: 'sm' | 'md' | 'lg';
+  commentsCount?: number;
+  onCommentClick?: () => void;
 }
 
 export default function VideoEngagement({
@@ -31,8 +34,11 @@ export default function VideoEngagement({
   className = '',
   showLatestLiker = true,
   showViewCount = true,
-  size = 'md'
+  size = 'md',
+  commentsCount = 0,
+  onCommentClick
 }: VideoEngagementProps) {
+  const { isMobile, isTablet } = useWindowSize();
   const [videoLikes, setVideoLikes] = useState(initialLikesCount);
   const [latestLiker, setLatestLiker] = useState<string | null>(null);
   const [isLiked, setIsLiked] = useState(false);
@@ -168,6 +174,21 @@ export default function VideoEngagement({
         >
           <HeartIcon className={`${currentSize.button} ${isLiked ? 'fill-current' : ''}`} />
         </button>
+
+        {/* Mobile Comment Button - Mobile and Tablet */}
+        {(isMobile || isTablet) && onCommentClick && (
+          <button
+            onClick={onCommentClick}
+            className="text-gray-400 hover:text-blue-400 transition-colors flex items-center gap-2"
+          >
+            <ChatBubbleLeftIcon className={currentSize.button} />
+            {commentsCount > 0 && (
+              <span className={`font-pixel ${currentSize.text} ml-1`}>
+                {commentsCount}
+              </span>
+            )}
+          </button>
+        )}
 
         {showViewCount && (
           <span className={`flex items-center gap-2 text-gray-400 font-pixel ${currentSize.text}`}>

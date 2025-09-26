@@ -110,24 +110,38 @@ const CommentSection: React.FC<CommentSectionProps> = ({
   }
 
   return (
-    <div className={`border-t border-gray-700 bg-gray-850 flex flex-col ${className}`}>
+    <div className={`border-t border-gray-700 bg-gray-850 flex flex-col h-full ${className}`} style={{ maxHeight }}>
       {/* Header */}
       {showHeader && (
-        <div className="p-4 border-b border-gray-700 flex-shrink-0">
+        <div className="p-2 border-b border-gray-700 flex-shrink-0">
           <h4 className="text-white font-pixel font-bold">Comments</h4>
         </div>
       )}
 
-      {/* Comments List */}
-      <div className="flex-1 overflow-y-auto comments-list" style={{ maxHeight }}>
+      {/* Comments List - Scrollable Area */}
+      <div className="flex-1 overflow-y-auto comments-list" style={{ minHeight: '120px' }}>
         {isLoadingComments ? (
-          <div className="p-4 text-center">
-            <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-yellow-400 mx-auto mb-2"></div>
-            <p className="text-gray-400 font-pixel text-sm">Loading comments...</p>
+          <div className="p-4 space-y-3">
+            {/* Skeleton Loading - 3 comment skeletons */}
+            {[...Array(3)].map((_, index) => (
+              <div key={index} className="flex gap-3 animate-pulse">
+                <div className="w-6 h-6 rounded-full bg-gray-700 flex-shrink-0"></div>
+                <div className="flex-1">
+                  <div className="flex items-center gap-2 mb-2">
+                    <div className="h-3 bg-gray-700 rounded w-20"></div>
+                  </div>
+                  <div className="space-y-1">
+                    <div className="h-3 bg-gray-700 rounded w-full"></div>
+                    <div className="h-3 bg-gray-700 rounded w-3/4"></div>
+                  </div>
+                </div>
+              </div>
+            ))}
           </div>
         ) : comments.length === 0 ? (
-          <div className="p-4 text-center">
-            <p className="text-gray-400 font-pixel text-sm">No comments yet. Be the first to comment!</p>
+          <div className="p-4 flex flex-col justify-center items-center h-full text-center gap-2">
+            <p className="text-white font-pixel text-sm">No comments yet</p>
+            <p className="text-gray-400 font-pixel text-[10px]">Start the conversation.</p>
           </div>
         ) : (
           <div className="p-4 space-y-3">
@@ -171,8 +185,8 @@ const CommentSection: React.FC<CommentSectionProps> = ({
         )}
       </div>
 
-      {/* Sticky Comment Input at Bottom */}
-      <div className="p-4 border-t border-gray-700 bg-gray-850 flex-shrink-0 sticky bottom-0">
+      {/* Fixed Comment Input at Bottom */}
+      <div className="p-4 border-t border-gray-700 bg-gray-850 flex-shrink-0">
         <form onSubmit={handleSubmitComment} className="flex gap-3 items-center">
           <div className="w-8 h-8 rounded-full overflow-hidden border border-gray-600 flex-shrink-0">
             {user?.profilePicture?.secureUrl ? (

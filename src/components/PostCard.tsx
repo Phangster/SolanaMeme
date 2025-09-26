@@ -2,15 +2,19 @@
 import React, { useState } from 'react';
 import Image from 'next/image';
 import { useWalletAuth } from '@/hooks/useWalletAuth';
+import { useWindowSize } from '@/hooks/useWindowSize';
 import CommentSection from './CommentSection';
+import MobileCommentModal from './MobileCommentModal';
 import { truncateWallet, formatTimeAgo } from '@/lib/utils';
 import { PostCardProps } from '@/types/interfaces';
 
 const PostCard: React.FC<PostCardProps> = ({ post }) => {
   const { token, isAuthenticated } = useWalletAuth();
+  const { isMobile, isTablet, isDesktop } = useWindowSize();
   const [isLiked, setIsLiked] = useState(false);
   const [likesCount, setLikesCount] = useState(post.likesCount);
   const [showComments, setShowComments] = useState(false);
+  const [showMobileCommentModal, setShowMobileCommentModal] = useState(false);
 
 
   const handleLike = async () => {
@@ -38,7 +42,15 @@ const PostCard: React.FC<PostCardProps> = ({ post }) => {
   };
 
   const handleToggleComments = () => {
-    setShowComments(!showComments);
+    if (isMobile || isTablet) {
+      setShowMobileCommentModal(true);
+    } else {
+      setShowComments(!showComments);
+    }
+  };
+
+  const handleCloseMobileModal = () => {
+    setShowMobileCommentModal(false);
   };
 
   return (
@@ -129,13 +141,24 @@ const PostCard: React.FC<PostCardProps> = ({ post }) => {
         </div>
       </div>
 
-      {/* Comments Section */}
-      {showComments && (
+      {/* Comments Section - Desktop Only */}
+      {showComments && isDesktop && (
         <CommentSection
           contentId={post._id}
           apiEndpoint="/api/posts"
           placeholder="Add a comment..."
           maxHeight="320px"
+        />
+      )}
+
+      {/* Mobile Comment Modal - Mobile and Tablet */}
+      {(isMobile || isTablet) && (
+        <MobileCommentModal
+          isOpen={showMobileCommentModal}
+          onClose={handleCloseMobileModal}
+          contentId={post._id}
+          apiEndpoint="/api/posts"
+          placeholder="Add a comment..."
         />
       )}
     </div>

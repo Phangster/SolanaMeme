@@ -58,6 +58,10 @@ export interface VideoModalProps {
   isAuthenticated: boolean;
   currentUserWallet?: string;
   showTitle?: boolean;
+  // Carousel props
+  videos?: any[];
+  currentVideoIndex?: number;
+  onVideoChange?: (video: any, index: number) => void;
 }
 
 export interface UploadedVideo {
