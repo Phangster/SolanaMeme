@@ -147,7 +147,7 @@ const Sidebar = ({ currentRoute, onNavigate, onClose }: SidebarProps) => {
           
           {/* Navigation Items */}
           <div className="flex flex-col justify-between h-full pt-10 md:pt-0">
-            <div className="space-y-4">
+            <div className="space-y-4 mb-8">
               {navigationItems.map((item) => {
                 const isActive = currentRoute === item.path;
                 return (
@@ -197,21 +197,6 @@ const Sidebar = ({ currentRoute, onNavigate, onClose }: SidebarProps) => {
               })}
             </div>
             <div className="space-y-4 mb-4" key={`auth-container-${forceUpdate}-${forceRender}`}>
-              <div className="p-4 bg-gray-900 rounded-lg border border-gray-700">
-                  <h3 className="text-sm font-bold text-yellow-400 mb-2 font-pixel text-center">Contract Address</h3>
-                  <div className="bg-gray-800 p-3 rounded-lg mb-3">
-                    <p className="font-mono text-xs text-yellow-400 break-all text-center">
-                      {contractAddress}
-                    </p>
-                  </div>
-                  <button
-                    onClick={() => window.open(solscanUrl, '_blank')}
-                    className="w-full bg-purple-600 hover:bg-purple-700 text-white px-3 py-2 rounded-lg font-pixel text-xs transition-colors flex items-center justify-center gap-2"
-                  >
-                    <ArrowTopRightOnSquareIcon className="size-5" />
-                    View on Solscan
-                  </button>
-                </div>
 
               {connected && isAuthenticated ? (
                 // Connected and authenticated - Show dashboard access

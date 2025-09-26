@@ -28,25 +28,24 @@ export default function NewsPage() {
 
   return (
     <Layout currentRoute="/news">
-      <div className="min-h-screen py-8">
-        <div className="mb-8">
-            <h1 className="text-3xl font-pixel font-bold text-white mb-2">
-              News Feed
-            </h1>
-            <p className="text-gray-400 font-pixel text-sm">
-              Latest updates and announcements
-            </p>
+      <div className="min-h-screen pt-20">
+        <div className="flex-1 max-w-4xl mx-auto text-center px-4">
+            <div className="mb-2">
+                <h1 className="text-3xl font-pixel font-bold text-white mb-2">
+                News Feed
+                </h1>
+                <p className="text-gray-400 font-pixel text-sm">
+                Latest updates and announcements
+                </p>
+            </div>
+            {loading ? (
+                <div className="text-center items-center justify-center h-full">
+                    <p className="text-gray-400 font-pixel text-sm">Loading tweets...</p>
+                </div>
+            ) : 
+                <TwitterFeed tweetUrls={tweetUrls} />
+            }
         </div>
-
-        {/* Twitter Feed */}
-        {loading ? (
-          <div className="text-center py-8 h-full items-center justify-center">
-            <p className="text-gray-400 font-pixel text-sm">Loading tweets...</p>
-          </div>
-        ) : (
-          <TwitterFeed tweetUrls={tweetUrls} />
-        )}
-
       </div>
     </Layout>
   );
