@@ -89,8 +89,8 @@ const Sidebar = ({ currentRoute, onNavigate, onClose }: SidebarProps) => {
       description: null
     },
     {
-      path: '/how-to-buy',
-      label: 'how to buy',
+      path: '/news',
+      label: 'X',
       icon: null,
       description: null
     },
@@ -113,11 +113,17 @@ const Sidebar = ({ currentRoute, onNavigate, onClose }: SidebarProps) => {
       description: null
     },
     {
+      path: '/how-to-buy',
+      label: 'how to buy',
+      icon: null,
+      description: null
+    },
+    {
       path: '/chart',
       label: 'chart',
       icon: null,
       description: null
-    }
+    },
   ];
 
   return (
