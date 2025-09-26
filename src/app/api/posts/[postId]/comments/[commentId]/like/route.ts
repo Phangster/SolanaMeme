@@ -42,7 +42,7 @@ export async function POST(
     }
 
     // Check if user already liked this comment
-    const existingLike = comment.likes.find((like: any) => like.wallet === wallet);
+    const existingLike = comment.likes.find((like: { wallet: string }) => like.wallet === wallet);
     
     if (existingLike) {
       return NextResponse.json(
@@ -111,7 +111,7 @@ export async function DELETE(
     }
 
     // Find and remove the like
-    const likeIndex = comment.likes.findIndex((like: any) => like.wallet === wallet);
+    const likeIndex = comment.likes.findIndex((like: { wallet: string }) => like.wallet === wallet);
     
     if (likeIndex === -1) {
       return NextResponse.json(

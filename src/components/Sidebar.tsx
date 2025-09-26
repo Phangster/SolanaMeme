@@ -230,19 +230,15 @@ const Sidebar = ({ currentRoute, onNavigate, onClose }: SidebarProps) => {
                 <button 
                   key={`connect-${connected}-${isAuthenticated}-${renderKey}-${forceUpdate}-${forceRender}`}
                   onClick={async () => {
-                    console.log('🔍 Button clicked - State:', { connected, isAuthenticated, isLoading });
                     
                     if (!connected) {
                       // Open wallet selection modal
-                      console.log('🔍 Opening wallet modal');
                       setVisible(true);
                     } else if (connected && !isAuthenticated && !isLoading) {
                       // Wallet is connected but not authenticated - trigger manual authentication
-                      console.log('🔍 Triggering manual authentication');
                       await authenticate();
                     } else if (connected && isAuthenticated) {
                       // Navigate to dashboard
-                      console.log('🔍 Navigating to dashboard');
                       onNavigate('/dashboard');
                     }
                   }}

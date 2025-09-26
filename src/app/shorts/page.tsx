@@ -61,6 +61,7 @@ export default function ShortsPage() {
     setSelectedVideo(video);
   };
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const handleVideoChange = (video: any, index: number) => {
     setCurrentVideoIndex(index);
     setSelectedVideo(video);

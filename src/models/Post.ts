@@ -75,10 +75,7 @@ PostSchema.virtual('likesCount').get(function() {
   return this.likes.length;
 });
 
-// Virtual for comments count
-PostSchema.virtual('commentsCount').get(function() {
-  return this.comments.length;
-});
+// Virtual for comments count - removed since comments are now in separate collection
 
 // Ensure virtuals are included when converting to JSON
 PostSchema.set('toJSON', { virtuals: true });

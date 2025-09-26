@@ -56,7 +56,7 @@ const VideoModal: React.FC<VideoModalProps> = ({
   return (
     <div 
       className="fixed inset-0 z-[100] bg-black bg-opacity-95 flex items-center justify-center p-4 md:w-[calc(100vw-320px)]"
-      onClick={(e) => {
+      onClick={() => {
         // Only close if not clicking on mobile comment modal
         if (!showMobileCommentModal) {
           onClose();

@@ -59,8 +59,10 @@ export interface VideoModalProps {
   currentUserWallet?: string;
   showTitle?: boolean;
   // Carousel props
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   videos?: any[];
   currentVideoIndex?: number;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   onVideoChange?: (video: any, index: number) => void;
 }
 

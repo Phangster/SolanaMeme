@@ -24,7 +24,8 @@ export async function GET(request: NextRequest) {
       .lean();
 
     // Get comment counts for all posts
-    const postIds = posts.map(post => new mongoose.Types.ObjectId(post._id));
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const postIds = posts.map(post => new mongoose.Types.ObjectId((post._id as any).toString()));
     const commentCounts = await Comment.aggregate([
       {
         $match: {
@@ -54,7 +55,8 @@ export async function GET(request: NextRequest) {
           ...post,
           authorInfo: author || { wallet: post.author, profilePicture: null },
           likesCount: post.likes?.length || 0,
-          commentsCount: commentCountMap[post._id.toString()] || 0,
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          commentsCount: commentCountMap[(post._id as any).toString()] || 0,
         };
       })
     );

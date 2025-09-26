@@ -14,7 +14,7 @@ export default function HomePage() {
         error: leaderboardError,
         isLoading: leaderboardLoading,
     } = useClickCounter({ country });
-    const { isMobile } = useWindowSize();
+    const { } = useWindowSize();
 
     // Check if both country detection and leaderboard are loaded
     // Allow game to be enabled if leaderboard is loaded, even if country detection fails

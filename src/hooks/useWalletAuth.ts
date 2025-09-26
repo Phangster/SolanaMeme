@@ -40,6 +40,55 @@ export const useWalletAuth = () => {
   const userCancelled = useRef(false);
   const [forceUpdate, setForceUpdate] = useState(0);
 
+  const fetchUserData = useCallback(async (token: string) => {
+    // Prevent duplicate calls
+    if (hasFetchedUserData.current) {
+      return;
+    }
+    
+    hasFetchedUserData.current = true;
+    
+    try {
+      const response = await fetch('/api/me', {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+        },
+      });
+
+      if (response.ok) {
+        const userData = await response.json();
+        setAuthState(prev => ({
+          ...prev,
+          user: userData.user,
+          isAuthenticated: true,
+          isLoading: false,
+          error: null,
+        }));
+      } else {
+        // Token is invalid, clear it
+        localStorage.removeItem('wallet_token');
+        setAuthState(prev => ({
+          ...prev,
+          token: null,
+          user: null,
+          isAuthenticated: false,
+          isLoading: false,
+          error: 'Session expired',
+        }));
+        hasFetchedUserData.current = false; // Reset on error
+      }
+    } catch (error) {
+      console.error('Failed to fetch user data:', error);
+      setAuthState(prev => ({
+        ...prev,
+        user: null,
+        isAuthenticated: false,
+        isLoading: false,
+        error: 'Failed to fetch user data',
+      }));
+      hasFetchedUserData.current = false; // Reset on error
+    }
+  }, []);
 
   // Load token from localStorage on mount and auto-authenticate on wallet connection
   useEffect(() => {
@@ -74,55 +123,7 @@ export const useWalletAuth = () => {
         authenticationManager.lastWalletAddress = null;
       }
     }
-  }, [connected]);
-
-  const fetchUserData = useCallback(async (token: string) => {
-    // Prevent duplicate calls
-    if (hasFetchedUserData.current) {
-      return;
-    }
-    
-    hasFetchedUserData.current = true;
-    
-    try {
-      const response = await fetch('/api/me', {
-        headers: {
-          'Authorization': `Bearer ${token}`,
-        },
-      });
-
-      if (response.ok) {
-        const data = await response.json();
-        setAuthState(prev => ({
-          ...prev,
-          user: data.user,
-          isAuthenticated: true,
-          isLoading: false,
-          error: null,
-        }));
-      } else {
-        // Token is invalid, clear it
-        localStorage.removeItem('wallet_token');
-        setAuthState(prev => ({
-          ...prev,
-          token: null,
-          user: null,
-          isAuthenticated: false,
-          isLoading: false,
-          error: 'Session expired',
-        }));
-        hasFetchedUserData.current = false; // Reset on error
-      }
-    } catch (error) {
-      console.error('Failed to fetch user data:', error);
-      setAuthState(prev => ({
-        ...prev,
-        isLoading: false,
-        error: 'Failed to fetch user data',
-      }));
-      hasFetchedUserData.current = false; // Reset on error
-    }
-  }, []);
+  }, [connected, fetchUserData]);
 
   const authenticate = useCallback(async () => {
 

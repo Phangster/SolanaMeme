@@ -4,7 +4,6 @@ import dbConnect from '@/lib/mongodb';
 import Post from '@/models/Post';
 import User from '@/models/User';
 import Comment from '@/models/Comment';
-import { Comment as CommentType } from '@/types/interfaces';
 import mongoose from 'mongoose';
 
 // Note: Comments are now stored in separate Comment model
@@ -64,11 +63,17 @@ export async function POST(
     }
 
     // Create comment in separate Comment model
-    const commentData: any = {
+    const commentData: {
+      wallet: string;
+      content: string;
+      contentId: mongoose.Types.ObjectId;
+      contentType: 'post';
+      parentCommentId?: mongoose.Types.ObjectId;
+    } = {
       wallet,
       content: content.trim(),
       contentId: new mongoose.Types.ObjectId(postId),
-      contentType: 'post'
+      contentType: 'post' as const
     };
 
     // Add parentCommentId if this is a reply
@@ -134,10 +139,11 @@ export async function GET(
     }).sort({ createdAt: 1 });
 
     // Separate top-level comments and replies
-    const topLevelComments = allComments.filter((comment: any) => !comment.parentCommentId);
-    const replies = allComments.filter((comment: any) => comment.parentCommentId);
+    const topLevelComments = allComments.filter((comment) => !comment.parentCommentId);
+    const replies = allComments.filter((comment) => comment.parentCommentId);
 
     // Get commenter profile info for all comments
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const getCommenterInfo = async (comment: any) => {
       const commenter = await User.findOne(
         { wallet: comment.wallet }, 
@@ -160,7 +166,7 @@ export async function GET(
         const commentWithProfile = await getCommenterInfo(comment);
         
         // Find replies for this comment
-        const commentReplies = replies.filter((reply: any) => {
+        const commentReplies = replies.filter((reply) => {
           if (!reply.parentCommentId || !comment._id) return false;
           // Handle both ObjectId and string comparisons
           const replyParentId = reply.parentCommentId.toString();
@@ -170,7 +176,7 @@ export async function GET(
         
         // Get profile info for replies
         const repliesWithProfiles = await Promise.all(
-          commentReplies.map((reply: any) => getCommenterInfo(reply))
+          commentReplies.map((reply) => getCommenterInfo(reply))
         );
         
         return {

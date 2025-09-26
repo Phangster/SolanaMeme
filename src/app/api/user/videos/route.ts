@@ -136,10 +136,8 @@ export async function GET(request: NextRequest) {
       .lean();
 
     // Get comment counts for all videos
-    const videoIds = videos.map(video => new mongoose.Types.ObjectId(video._id.toString()));
-    
-    console.log('Debug - User videos API - Video IDs:', videoIds);
-    
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const videoIds = videos.map(video => new mongoose.Types.ObjectId((video._id as any).toString()));    
     const commentCounts = await Comment.aggregate([
       {
         $match: {
@@ -155,21 +153,18 @@ export async function GET(request: NextRequest) {
       }
     ]);
 
-    console.log('Debug - User videos API - Comment counts:', commentCounts);
-
     // Create a map of video ID to comment count
     const commentCountMap = commentCounts.reduce((acc, item) => {
       acc[item._id.toString()] = item.count;
       return acc;
     }, {} as Record<string, number>);
 
-    console.log('Debug - User videos API - Comment count map:', commentCountMap);
-
     // Add computed fields
     const videosWithStats = videos.map(video => ({
       ...video,
       likesCount: video.likes?.length || 0,
-      commentsCount: commentCountMap[video._id.toString()] || 0,
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      commentsCount: commentCountMap[(video._id as any).toString()] || 0,
       // Keep the full likes array for detailed display
       likes: video.likes || [],
     }));

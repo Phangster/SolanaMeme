@@ -56,6 +56,7 @@ export default function DashboardPage() {
   const [showProfileModal, setShowProfileModal] = useState(false);
   const [activeTab, setActiveTab] = useState<'videos' | 'posts' | 'activity'>('videos');
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const handleVideoChange = (video: any, index: number) => {
     setCurrentVideoIndex(index);
     setSelectedVideo(video);

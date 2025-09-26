@@ -77,7 +77,7 @@ const CommentSection: React.FC<CommentSectionProps> = ({
     setIsSubmittingComment(true);
     try {
 
-      const requestBody: any = {
+      const requestBody: { content: string; parentCommentId?: string } = {
         content: commentContent,
       };
 
@@ -169,7 +169,6 @@ const CommentSection: React.FC<CommentSectionProps> = ({
       });
 
       if (response.ok) {
-        const data = await response.json();
         // Update the comment in the state
         setComments(prev => prev.map(comment => {
           if (comment._id === commentId) {
